@@ -1,0 +1,26 @@
+{
+  "name": "ss58-playground",
+  "version": "1.0.0",
+  "description": "playing around",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yangwao/ss58-playground.git"
+  },
+  "keywords": [
+    "ss58",
+    "polkadot"
+  ],
+  "author": "yangwao",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/yangwao/ss58-playground/issues"
+  },
+  "homepage": "https://github.com/yangwao/ss58-playground#readme",
+  "dependencies": {
+    "ss58": "^1.0.2"
+  }
+}
