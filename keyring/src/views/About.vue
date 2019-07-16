@@ -3,15 +3,14 @@
     <h1>Keyring generator for Polkadot/Substrate-like parachains accounts</h1> 
     <p>written in Vue.js & Typescript</p>
     <p>offline-first</p>
-    <p><button @click="validateMnemonic">Validate Mnemonic</button> {{isValidMnemonic}}</p>
     <div class="field">
       <label class="label">name</label>
       <div class="control">
-        <input v-model="meta.name" class="input is-info" type="text" placeholder="new Account name">
+        <input v-model="keyAccountName" class="input is-info" type="text" placeholder="new Account name">
       </div>
     </div>
     
-    <p>mnemonic Seed</p>
+    <p><strong>mnemonic Seed</strong></p>
     <div class="field has-addons">
       <div class="control is-expanded">
         <input v-model="mnemonicGenerated" class="input is-info" type="text">
@@ -29,6 +28,7 @@
       <p v-show="passwordKeystore < 1" class="help is-danger">password is mandatory</p>
     </div>
 
+    <h3>Advanced creation options</h3>
     <div class="field">
       <label class="label">keypair crypto type</label>
       <div class="control">
@@ -49,7 +49,7 @@
     <div class="field">
       <label class="label">secret derivation path</label>
       <div class="control">
-        <input class="input is-info" type="text" placeholder="secret derivation path" value="">
+        <input class="input is-info" type="text" placeholder="secret derivation path" disabled>
       </div>
     </div>
 
@@ -81,40 +81,41 @@ export default class About extends Vue {
   public keyring: any = '';
   public keyringPair: string = '';
   public keyringPairType: string = 'ed25519';
+  public keyAccountName: string = '';
   public meta: object = { name: '', tags: [], whenCreated: 0};
   public keystoreJson: object = {};
   public keystoreToDownload: string = '';
   public passwordKeystore: string = '';
   public mnemonicGenerated: string = '';
-  public isValidMnemonic: boolean = false;
+
   public mnemonic2Seed: any;
   public keyringPairTypes: object = [
     {text: 'Edwards (ed25519)', value: 'ed25519'},
     {text: 'Schnorrkel (sr25519)', value: 'sr25519'}];
 
-  public saveKeystoreToJson(): void {
-    this.keystoreJson = this.keyring.toJson(this.keyringPair, this.passwordKeystore);
-    this.keystoreToDownload = 'text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(this.keystoreJson));
-  }
-
   public mnemonicGenerate(): void {
     this.mnemonicGenerated = mnemonicGenerate();
     this.mnemonic2Seed = mnemonicToSeed(this.mnemonicGenerated);
   }
-
-  public validateMnemonic(): void {
-    this.isValidMnemonic = mnemonicValidate(this.mnemonicGenerated);
-  }
   //   const ALICE_SEED = this.aliceSeed.padEnd(32, ' ');
   //   const pairAlice = this.keyring.addFromSeed(stringToU8a(ALICE_SEED));
   public mainGenerateFromMnemonic(): void {
-    this.keyring = new Keyring();
-    this.meta = {
-      tags: [],
-      whenCreated: Date.now() };
-    const pairAlice = this.keyring.addFromMnemonic(this.mnemonicGenerated, this.meta, this.keyringPairType);
-    this.keyringPair = this.keyring.getPair(pairAlice.address).address;
-    
+    const isValidMnemonic = mnemonicValidate(this.mnemonicGenerated);
+    if (isValidMnemonic) {
+      this.keyring = new Keyring();
+      this.meta = {
+        name: this.keyAccountName,
+        tags: [],
+        whenCreated: Date.now() };
+      const pairAlice = this.keyring.addFromMnemonic(this.mnemonicGenerated, this.meta, this.keyringPairType);
+      this.keyringPair = this.keyring.getPair(pairAlice.address).address;
+    }
+  }
+
+  public saveKeystoreToJson(): void {
+    this.mainGenerateFromMnemonic();
+    this.keystoreJson = this.keyring.toJson(this.keyringPair, this.passwordKeystore);
+    this.keystoreToDownload = 'text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(this.keystoreJson));
   }
 
   public mounted() {
