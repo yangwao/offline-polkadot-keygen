@@ -8,14 +8,16 @@
         <input class="input" type="text" placeholder="new Account name">
       </div>
     </div>
-
-    <div class="field">
-      <label class="label">mnemonic Seed</label>
-      <div class="control">
+    
+    <p>mnemonic Seed</p>
+    <div class="field has-addons">
+      <!-- <label class="label">mnemonic Seed</label> -->
+      <div class="control is-expanded">
         <input v-model="mnemonicGenerated" class="input" type="text">
-        
       </div>
-      <button @click="mnemonicGenerate()" class="button is-info">generate Mnemonic</button><br>  
+      <div class="control">
+        <button @click="mnemonicGenerate()" class="button is-info">generate Mnemonic</button><br>  
+      </div>
     </div>
 
     <div class="field">
@@ -30,9 +32,9 @@
       <label class="label">keypair crypto type</label>
       <div class="control">
         <div class="select">
-          <select>
-            <option>Edwards (ed25519)</option>
-            <option>Schnorrkel (sr25519)</option>
+          <select v-model="keyringPairType">
+            <option value="ed25519">Edwards (ed25519)</option>
+            <option value="sr25519">Schnorrkel (sr25519)</option>
           </select>
         </div>
       </div>
@@ -47,8 +49,8 @@
 
     <button @click="mainGenerateFromMnemonic()" class="button is-info">Generate Keyring</button>
     <p>Created keyring pair from mnemonic address:</p>
-    <p>{{keyRingPair}}</p>
-    <p>{{keyRingPairType}}</p>
+    <p>{{keyringPair}}</p>
+    <p>{{keyringPairType}}</p>
     <p>{{meta}}</p>
   </div>
 </template>
@@ -63,8 +65,8 @@ import { mnemonicGenerate, mnemonicToSeed, mnemonicValidate } from '@polkadot/ut
 export default class About extends Vue {
   public aliceSeed: string = '//Alice';
   public keyring: any = '';
-  public keyRingPair: string = '';
-  public keyRingPairType: string = '';
+  public keyringPair: string = '';
+  public keyringPairType: string = 'ed25519';
   public meta: string = '';
   public mnemonicGenerated: string = '';
   public isValidMnemonic: boolean = false;
@@ -79,22 +81,18 @@ export default class About extends Vue {
     this.isValidMnemonic = mnemonicValidate(this.mnemonicGenerated);
   }
 
-  // public mainGenerate(): void {
-  //   // Create account seed for Alice
   //   const ALICE_SEED = this.aliceSeed.padEnd(32, ' ');
-  //   // Create an instance of the Keyring
-  //   this.keyring = new Keyring();
-  //   // Create pair and add Alice to keyring pair dictionary (with account seed)
   //   const pairAlice = this.keyring.addFromSeed(stringToU8a(ALICE_SEED));
-  //   this.keyRingPair = this.keyring.getPair(pairAlice.address).address;
-  //   this.keyRingPairType = this.keyring._type;
-  //   }
 
   public mainGenerateFromMnemonic(): void {
     this.keyring = new Keyring();
-    const pairAlice = this.keyring.addFromMnemonic(this.mnemonicGenerated);
-    this.keyRingPair = this.keyring.getPair(pairAlice.address).address;
-    this.keyRingPairType = this.keyring._type;
+    const pairAlice = this.keyring.addFromMnemonic(this.mnemonicGenerated, {}, this.keyringPairType);
+    this.keyringPair = this.keyring.getPair(pairAlice.address).address;
+    this.keyringPairType = this.keyring._type;
+  }
+
+  public mounted() {
+    this.mnemonicGenerate();
   }
 }
 </script>
