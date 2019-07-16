@@ -54,7 +54,7 @@
               v-for="option in keyringPairTypes"
               v-bind:value="option.value"
               v-bind:key="option.value"
-              :selected ="option.value == 'ed25519'">
+              :selected ="option.value == 'sr25519'">
               {{ option.text }}
             </option>
           </select>
@@ -89,7 +89,7 @@
 
 <script lang="ts">
 import { Vue, Component } from 'vue-property-decorator';
-import Credits from '@/components/Credits.vue'; // @ is an alias to /src
+import Credits from '@/components/Credits.vue';
 
 import Keyring from '@polkadot/keyring';
 import stringToU8a from '@polkadot/util/string/toU8a';
@@ -103,7 +103,7 @@ import { mnemonicGenerate, mnemonicToSeed, mnemonicValidate } from '@polkadot/ut
 export default class About extends Vue {
   public keyring: any = '';
   public keyringPair: string = '';
-  public keyringPairType: string = 'ed25519';
+  public keyringPairType: string = 'sr25519';
   public keyAccountName: string = '';
   public meta: object = { name: '', tags: [], whenCreated: 0};
   public keystoreJson: object = {};
