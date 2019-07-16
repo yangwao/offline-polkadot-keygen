@@ -2,10 +2,11 @@
   <div class="about">
     <div class="intro">
       <h1>Offline Keyring Generator for 
-        <a href="https://www.parity.io/substrate/">Substrate</a> parachains accounts</h1>   
+        <a href="https://www.parity.io/substrate/">Substrate</a> accounts</h1>   
+        <li>Compatible with <a href="https://github.com/paritytech/substrate/tree/master/subkey">Subkey</a> utility 💯</li>
         <li>written in Vue.js & Typescript</li>
         <li>offline-first (PWA)</li> 
-        <li>Compatible with <a href="https://github.com/paritytech/substrate/tree/master/subkey">Subkey</a> utility 💯</li>
+        
     </div>
 
     <div class="field">
@@ -93,6 +94,8 @@
       class="button is-info" 
       :href='`data:${keystoreToDownload}`' 
       :download="`${keyringPair}.json`">Download Account</a>
+    <br>
+    <br>
     <p>Created keyring pair from mnemonic address:</p>    
     <li>Public Key: {{keyringPairPubKey}}</li>
     <li>Address (SS58): {{keyringPair}}</li>
