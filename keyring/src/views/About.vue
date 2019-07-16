@@ -7,7 +7,7 @@
     <div class="field">
       <label class="label">name</label>
       <div class="control">
-        <input class="input" type="text" placeholder="new Account name">
+        <input class="input is-info" type="text" placeholder="new Account name">
       </div>
     </div>
     
@@ -15,10 +15,10 @@
     <div class="field has-addons">
       <!-- <label class="label">mnemonic Seed</label> -->
       <div class="control is-expanded">
-        <input v-model="mnemonicGenerated" class="input" type="text">
+        <input v-model="mnemonicGenerated" class="input is-info" type="text">
       </div>
       <div class="control">
-        <button @click="mnemonicGenerate()" class="button is-info">generate Mnemonic</button><br>  
+        <button @click="mnemonicGenerate(); mainGenerateFromMnemonic()" class="button is-info">generate Mnemonic</button><br>  
       </div>
     </div>
 
@@ -59,16 +59,23 @@
     <p>{{keyringPair}}</p>
     <p>{{keyringPairType}}</p>
     <p>{{meta}}</p>
+    <Credits/>
   </div>
 </template>
 
 <script lang="ts">
 import { Vue, Component } from 'vue-property-decorator';
+import Credits from '@/components/Credits.vue'; // @ is an alias to /src
+
 import Keyring from '@polkadot/keyring';
 import stringToU8a from '@polkadot/util/string/toU8a';
 import { mnemonicGenerate, mnemonicToSeed, mnemonicValidate } from '@polkadot/util-crypto';
 
-@Component
+@Component({
+  components: {
+    Credits,
+  },
+})
 export default class About extends Vue {
   public aliceSeed: string = '//Alice';
   public keyring: any = '';
