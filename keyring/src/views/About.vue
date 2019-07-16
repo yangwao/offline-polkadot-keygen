@@ -73,6 +73,20 @@
       </div>
     </div>
 
+    <p><strong>raw seed - experimental</strong></p>
+    <div class="field has-addons">
+      <div class="control is-expanded">
+        <input v-model="keyringPairHexSeed"
+          class="input "   
+          type="text"
+          disabled>
+      </div>
+      <div class="control">
+        <button @click="mainGenerateFromHex()" 
+        class="button is-info" disabled>Preview from raw seed</button><br>  
+      </div>
+    </div>
+
     <button @click="saveKeystoreToJson()" class="button is-info">Preview Account</button>
     <a @click="saveKeystoreToJson()" 
       :disabled="passwordKeystore.length < 1" 
@@ -92,7 +106,7 @@ import { Vue, Component } from 'vue-property-decorator';
 import Credits from '@/components/Credits.vue';
 
 import Keyring from '@polkadot/keyring';
-import { u8aToHex } from '@polkadot/util';
+import { u8aToHex, hexToU8a } from '@polkadot/util';
 import { mnemonicGenerate, mnemonicToSeed, mnemonicValidate } from '@polkadot/util-crypto';
 // import stringToU8a from '@polkadot/util/string/toU8a';
 
@@ -107,6 +121,7 @@ export default class About extends Vue {
   public keyringPairType: string = 'sr25519';
   public keyringPairPubKey: string = '';
   public keyAccountName: string = '';
+  public keyringPairHexSeed: string = '';
   public meta: object = { name: '', tags: [], whenCreated: 0};
   public keystoreJson: object = {};
   public keystoreToDownload: string = '';
@@ -120,12 +135,21 @@ export default class About extends Vue {
   public mnemonicGenerate(): void {
     this.mnemonicGenerated = mnemonicGenerate();
   }
-
+  // public generateSeedFromMnemonic(): void {
+  //   this.keyringPairHexSeed = u8aToHex(mnemonicToSeed(this.mnemonicGenerated));
+  // }
   public isValidMnemonic(): void {
     this.validMnemonic = mnemonicValidate(this.mnemonicGenerated);
   }
   //   const ALICE_SEED = this.aliceSeed.padEnd(32, ' ');
   //   const pairAlice = this.keyring.addFromSeed(stringToU8a(ALICE_SEED));
+  public mainGenerateFromHex(): void {
+    this.keyring = new Keyring();
+    const pairAlice = this.keyring.addFromSeed(hexToU8a(this.keyringPairHexSeed), this.meta, this.keyringPairType);
+    this.keyringPair = this.keyring.getPair(pairAlice.address).address;
+    this.keyringPairPubKey = u8aToHex(this.keyring.getPair(pairAlice.address).publicKey);
+  }
+
   public mainGenerateFromMnemonic(): void {
     this.isValidMnemonic();
     if (this.validMnemonic) {
