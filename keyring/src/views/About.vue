@@ -7,13 +7,12 @@
     <div class="field">
       <label class="label">name</label>
       <div class="control">
-        <input class="input is-info" type="text" placeholder="new Account name">
+        <input v-model="meta.name" class="input is-info" type="text" placeholder="new Account name">
       </div>
     </div>
     
     <p>mnemonic Seed</p>
     <div class="field has-addons">
-      <!-- <label class="label">mnemonic Seed</label> -->
       <div class="control is-expanded">
         <input v-model="mnemonicGenerated" class="input is-info" type="text">
       </div>
@@ -25,9 +24,9 @@
     <div class="field">
       <label class="label">password</label>
       <div class="control">
-        <input class="input is-info" type="text" placeholder="password" value="">
+        <input v-model="passwordKeystore" class="input is-info" type="password" placeholder="password" value="">
       </div>
-      <p class="help is-danger">password is mandatory</p>
+      <p v-show="passwordKeystore < 1" class="help is-danger">password is mandatory</p>
     </div>
 
     <div class="field">
@@ -55,10 +54,12 @@
     </div>
 
     <button @click="mainGenerateFromMnemonic()" class="button is-info">Generate Keyring</button>
+    <button @click="saveKeystoreToJson()" class="button is-info">Save Account</button>
+    <a @click="saveKeystoreToJson()" :disabled="passwordKeystore < 1" class="button is-info" :href='`data:${keystoreToDownload}`' :download="`${keyringPair}.json`">Download Account</a>
     <p>Created keyring pair from mnemonic address:</p>
     <p>{{keyringPair}}</p>
     <p>{{keyringPairType}}</p>
-    <p>{{meta}}</p>
+    <p>{{keystoreJson}}</p>
     <Credits/>
   </div>
 </template>
@@ -77,17 +78,24 @@ import { mnemonicGenerate, mnemonicToSeed, mnemonicValidate } from '@polkadot/ut
   },
 })
 export default class About extends Vue {
-  public aliceSeed: string = '//Alice';
   public keyring: any = '';
   public keyringPair: string = '';
   public keyringPairType: string = 'ed25519';
-  public meta: string = '';
+  public meta: object = { name: '', tags: [], whenCreated: 0};
+  public keystoreJson: object = {};
+  public keystoreToDownload: string = '';
+  public passwordKeystore: string = '';
   public mnemonicGenerated: string = '';
   public isValidMnemonic: boolean = false;
   public mnemonic2Seed: any;
   public keyringPairTypes: object = [
     {text: 'Edwards (ed25519)', value: 'ed25519'},
     {text: 'Schnorrkel (sr25519)', value: 'sr25519'}];
+
+  public saveKeystoreToJson(): void {
+    this.keystoreJson = this.keyring.toJson(this.keyringPair, this.passwordKeystore);
+    this.keystoreToDownload = 'text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(this.keystoreJson));
+  }
 
   public mnemonicGenerate(): void {
     this.mnemonicGenerated = mnemonicGenerate();
@@ -97,14 +105,16 @@ export default class About extends Vue {
   public validateMnemonic(): void {
     this.isValidMnemonic = mnemonicValidate(this.mnemonicGenerated);
   }
-
   //   const ALICE_SEED = this.aliceSeed.padEnd(32, ' ');
   //   const pairAlice = this.keyring.addFromSeed(stringToU8a(ALICE_SEED));
-
   public mainGenerateFromMnemonic(): void {
     this.keyring = new Keyring();
-    const pairAlice = this.keyring.addFromMnemonic(this.mnemonicGenerated, {}, this.keyringPairType);
+    this.meta = {
+      tags: [],
+      whenCreated: Date.now() };
+    const pairAlice = this.keyring.addFromMnemonic(this.mnemonicGenerated, this.meta, this.keyringPairType);
     this.keyringPair = this.keyring.getPair(pairAlice.address).address;
+    
   }
 
   public mounted() {
