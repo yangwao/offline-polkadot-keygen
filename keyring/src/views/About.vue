@@ -1,31 +1,47 @@
 <template>
   <div class="about">
-    <h1>Keyring generator for Polkadot/Substrate-like parachains accounts</h1> 
-    <p>written in Vue.js & Typescript</p>
-    <p>offline-first</p>
+    <div class="intro">
+      <h1>Offline Keyring Generator for 
+        <a href="https://polkadot.network/">Polkadot</a>/<a href="https://www.parity.io/substrate/">Substrate</a>-like parachains accounts</h1> 
+      <li>written in Vue.js & Typescript</li>
+      <li>offline-first (PWA)</li>
+    </div>
+
     <div class="field">
       <label class="label">name</label>
       <div class="control">
-        <input v-model="keyAccountName" class="input is-info" type="text" placeholder="new Account name">
+        <input v-model="keyAccountName" 
+        class="input is-info" 
+        type="text" 
+        placeholder="new account name">
       </div>
     </div>
     
     <p><strong>mnemonic Seed</strong></p>
     <div class="field has-addons">
       <div class="control is-expanded">
-        <input v-model="mnemonicGenerated" class="input is-info" type="text">
+        <input v-model="mnemonicGenerated" 
+          @input="isValidMnemonic()" 
+          class="input " 
+          v-bind:class="{ 'is-danger': !validMnemonic }"  
+          type="text">
       </div>
       <div class="control">
-        <button @click="mnemonicGenerate(); mainGenerateFromMnemonic()" class="button is-info">generate Mnemonic</button><br>  
+        <button @click="mnemonicGenerate(); mainGenerateFromMnemonic()" 
+        class="button is-info">generate Mnemonic</button><br>  
       </div>
     </div>
 
     <div class="field">
       <label class="label">password</label>
       <div class="control">
-        <input v-model="passwordKeystore" class="input is-info" type="password" placeholder="password" value="">
+        <input v-model="passwordKeystore" 
+        class="input" 
+        v-bind:class="{ 'is-danger': !passwordKeystore}" 
+        type="password" 
+        placeholder="password">
       </div>
-      <p v-show="passwordKeystore < 1" class="help is-danger">password is mandatory</p>
+      <p v-show="passwordKeystore.length < 1" class="help is-danger">password is mandatory</p>
     </div>
 
     <h3>Advanced creation options</h3>
@@ -49,13 +65,20 @@
     <div class="field">
       <label class="label">secret derivation path</label>
       <div class="control">
-        <input class="input is-info" type="text" placeholder="secret derivation path" disabled>
+        <input class="input is-info" 
+          type="text" 
+          placeholder="secret derivation path" 
+          disabled>
       </div>
     </div>
 
     <button @click="mainGenerateFromMnemonic()" class="button is-info">Generate Keyring</button>
     <button @click="saveKeystoreToJson()" class="button is-info">Save Account</button>
-    <a @click="saveKeystoreToJson()" :disabled="passwordKeystore < 1" class="button is-info" :href='`data:${keystoreToDownload}`' :download="`${keyringPair}.json`">Download Account</a>
+    <a @click="saveKeystoreToJson()" 
+      :disabled="passwordKeystore.length < 1" 
+      class="button is-info" 
+      :href='`data:${keystoreToDownload}`' 
+      :download="`${keyringPair}.json`">Download Account</a>
     <p>Created keyring pair from mnemonic address:</p>
     <p>{{keyringPair}}</p>
     <p>{{keyringPairType}}</p>
@@ -87,21 +110,23 @@ export default class About extends Vue {
   public keystoreToDownload: string = '';
   public passwordKeystore: string = '';
   public mnemonicGenerated: string = '';
-
-  public mnemonic2Seed: any;
+  public validMnemonic: boolean = false;
   public keyringPairTypes: object = [
     {text: 'Edwards (ed25519)', value: 'ed25519'},
     {text: 'Schnorrkel (sr25519)', value: 'sr25519'}];
 
   public mnemonicGenerate(): void {
     this.mnemonicGenerated = mnemonicGenerate();
-    this.mnemonic2Seed = mnemonicToSeed(this.mnemonicGenerated);
+  }
+
+  public isValidMnemonic(): void {
+    this.validMnemonic = mnemonicValidate(this.mnemonicGenerated);
   }
   //   const ALICE_SEED = this.aliceSeed.padEnd(32, ' ');
   //   const pairAlice = this.keyring.addFromSeed(stringToU8a(ALICE_SEED));
   public mainGenerateFromMnemonic(): void {
-    const isValidMnemonic = mnemonicValidate(this.mnemonicGenerated);
-    if (isValidMnemonic) {
+    this.isValidMnemonic();
+    if (this.validMnemonic) {
       this.keyring = new Keyring();
       this.meta = {
         name: this.keyAccountName,
@@ -124,3 +149,8 @@ export default class About extends Vue {
   }
 }
 </script>
+<style scoped lang="scss">
+.intro {
+  padding: 80px 0 80px;
+}
+</style>

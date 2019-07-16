@@ -1,5 +1,9 @@
 <template>
   <div class="credits">
+    <h3>Powered ⚡️🔋 By</h3>
+    <ul>
+      <li><a href="https://polkadot.js.org/common/">https://polkadot.js.org/common/</a></li>
+    </ul>
     <h3>Author 🐬🥳🥰</h3>
     <ul>
       <li><a href="https://hypersignal.xyz" target="_blank" rel="noopener">hypersignal.xyz</a></li>
@@ -22,7 +26,7 @@ export default class Credits extends Vue {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="scss">
 h3 {
-  margin: 100px 0 0;
+  margin: 80px 0 0;
 }
 ul {
   list-style-type: none;
