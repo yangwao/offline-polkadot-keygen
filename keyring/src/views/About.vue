@@ -6,7 +6,7 @@
         <li>Compatible with <a href="https://github.com/paritytech/substrate/tree/master/subkey">Subkey</a> utility 💯</li>
         <li>written in Vue.js & Typescript</li>
         <li>offline-first (PWA)</li> 
-        
+        <button @click="deferDueWasm()" class="button is-success" :disabled="init">Beam me up, Scotty a.k.a initialize wasm-crypto</button>
     </div>
 
     <div class="field">
@@ -119,6 +119,7 @@ import { mnemonicGenerate, mnemonicToSeed, mnemonicValidate } from '@polkadot/ut
   },
 })
 export default class About extends Vue {
+  public init: boolean = false;
   public keyring: any = '';
   public keyringPair: string = '';
   public keyringPairType: string = 'sr25519';
@@ -144,8 +145,6 @@ export default class About extends Vue {
   public isValidMnemonic(): void {
     this.validMnemonic = mnemonicValidate(this.mnemonicGenerated);
   }
-  //   const ALICE_SEED = this.aliceSeed.padEnd(32, ' ');
-  //   const pairAlice = this.keyring.addFromSeed(stringToU8a(ALICE_SEED));
   public mainGenerateFromHex(): void {
     this.keyring = new Keyring();
     const pairAlice = this.keyring.addFromSeed(hexToU8a(this.keyringPairHexSeed), this.meta, this.keyringPairType);
@@ -173,9 +172,12 @@ export default class About extends Vue {
     this.keystoreToDownload = 'text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(this.keystoreJson));
   }
 
-  public mounted() {
+  public deferDueWasm(): void {
     this.mnemonicGenerate();
     this.mainGenerateFromMnemonic();
+    this.init = true
+  }
+  public mounted(): void {  
   }
 }
 </script>
