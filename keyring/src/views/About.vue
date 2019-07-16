@@ -2,9 +2,10 @@
   <div class="about">
     <div class="intro">
       <h1>Offline Keyring Generator for 
-        <a href="https://polkadot.network/">Polkadot</a>/<a href="https://www.parity.io/substrate/">Substrate</a>-like parachains accounts</h1> 
-      <li>written in Vue.js & Typescript</li>
-      <li>offline-first (PWA)</li>
+        <a href="https://www.parity.io/substrate/">Substrate</a> parachains accounts</h1>   
+        <li>written in Vue.js & Typescript</li>
+        <li>offline-first (PWA)</li> 
+        <li>Compatible with <a href="https://github.com/paritytech/substrate/tree/master/subkey">Subkey</a> utility 💯</li>
     </div>
 
     <div class="field">
@@ -72,17 +73,16 @@
       </div>
     </div>
 
-    <button @click="mainGenerateFromMnemonic()" class="button is-info">Generate Keyring</button>
-    <button @click="saveKeystoreToJson()" class="button is-info">Save Account</button>
+    <button @click="saveKeystoreToJson()" class="button is-info">Preview Account</button>
     <a @click="saveKeystoreToJson()" 
       :disabled="passwordKeystore.length < 1" 
       class="button is-info" 
       :href='`data:${keystoreToDownload}`' 
       :download="`${keyringPair}.json`">Download Account</a>
-    <p>Created keyring pair from mnemonic address:</p>
-    <p>{{keyringPair}}</p>
-    <p>{{keyringPairType}}</p>
-    <p>{{keystoreJson}}</p>
+    <p>Created keyring pair from mnemonic address:</p>    
+    <li>Public Key: {{keyringPairPubKey}}</li>
+    <li>Address (SS58): {{keyringPair}}</li>
+    <li>Keystore: {{keystoreJson}}</li>
     <Credits/>
   </div>
 </template>
@@ -92,8 +92,9 @@ import { Vue, Component } from 'vue-property-decorator';
 import Credits from '@/components/Credits.vue';
 
 import Keyring from '@polkadot/keyring';
-import stringToU8a from '@polkadot/util/string/toU8a';
+import { u8aToHex } from '@polkadot/util';
 import { mnemonicGenerate, mnemonicToSeed, mnemonicValidate } from '@polkadot/util-crypto';
+// import stringToU8a from '@polkadot/util/string/toU8a';
 
 @Component({
   components: {
@@ -104,6 +105,7 @@ export default class About extends Vue {
   public keyring: any = '';
   public keyringPair: string = '';
   public keyringPairType: string = 'sr25519';
+  public keyringPairPubKey: string = '';
   public keyAccountName: string = '';
   public meta: object = { name: '', tags: [], whenCreated: 0};
   public keystoreJson: object = {};
@@ -134,6 +136,7 @@ export default class About extends Vue {
         whenCreated: Date.now() };
       const pairAlice = this.keyring.addFromMnemonic(this.mnemonicGenerated, this.meta, this.keyringPairType);
       this.keyringPair = this.keyring.getPair(pairAlice.address).address;
+      this.keyringPairPubKey = u8aToHex(this.keyring.getPair(pairAlice.address).publicKey);
     }
   }
 
