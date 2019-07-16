@@ -1,14 +1,51 @@
 <template>
   <div class="about">
     <h1>Keyring generator for Polkadot/Substrate-like parachains accounts</h1>
-    <input v-model="mnemonicGenerated">
-    <p>{{mnemonicGenerated}}</p>
-    <button @click="mnemonicGenerate()">Generate Mnemonic</button><br>
     <p><button @click="validateMnemonic">Validate Mnemonic</button> {{isValidMnemonic}}</p>
-    <!-- <p>{{this.mnemonic2Seed}}</p> -->
-    <!-- <input v-model="aliceSeed"> -->
-    <!-- <button @click="mainGenerate()">Generate Keyring</button> -->
-    <button @click="mainGenerateFromMnemonic()">Generate Keyring</button>
+    <div class="field">
+      <label class="label">name</label>
+      <div class="control">
+        <input class="input" type="text" placeholder="new Account name">
+      </div>
+    </div>
+
+    <div class="field">
+      <label class="label">mnemonic Seed</label>
+      <div class="control">
+        <input v-model="mnemonicGenerated" class="input" type="text">
+        
+      </div>
+      <button @click="mnemonicGenerate()" class="button is-info">generate Mnemonic</button><br>  
+    </div>
+
+    <div class="field">
+      <label class="label">password</label>
+      <div class="control">
+        <input class="input is-info" type="text" placeholder="password" value="">
+      </div>
+      <p class="help is-danger">password is mandatory</p>
+    </div>
+
+    <div class="field">
+      <label class="label">keypair crypto type</label>
+      <div class="control">
+        <div class="select">
+          <select>
+            <option>Edwards (ed25519)</option>
+            <option>Schnorrkel (sr25519)</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="field">
+      <label class="label">secret derivation path</label>
+      <div class="control">
+        <input class="input is-info" type="text" placeholder="secret derivation path" value="">
+      </div>
+    </div>
+
+    <button @click="mainGenerateFromMnemonic()" class="button is-info">Generate Keyring</button>
     <p>Created keyring pair from mnemonic address:</p>
     <p>{{keyRingPair}}</p>
     <p>{{keyRingPairType}}</p>
