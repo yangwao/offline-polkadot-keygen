@@ -1,6 +1,8 @@
 <template>
   <div class="about">
-    <h1>Keyring generator for Polkadot/Substrate-like parachains accounts</h1>
+    <h1>Keyring generator for Polkadot/Substrate-like parachains accounts</h1> 
+    <p>written in Vue.js & Typescript</p>
+    <p>offline-first</p>
     <p><button @click="validateMnemonic">Validate Mnemonic</button> {{isValidMnemonic}}</p>
     <div class="field">
       <label class="label">name</label>
@@ -32,9 +34,14 @@
       <label class="label">keypair crypto type</label>
       <div class="control">
         <div class="select">
-          <select v-model="keyringPairType">
-            <option value="ed25519">Edwards (ed25519)</option>
-            <option value="sr25519">Schnorrkel (sr25519)</option>
+          <select v-model="keyringPairType" @change="mainGenerateFromMnemonic()">
+            <option
+              v-for="option in keyringPairTypes"
+              v-bind:value="option.value"
+              v-bind:key="option.value"
+              :selected ="option.value == 'ed25519'">
+              {{ option.text }}
+            </option>
           </select>
         </div>
       </div>
@@ -71,6 +78,9 @@ export default class About extends Vue {
   public mnemonicGenerated: string = '';
   public isValidMnemonic: boolean = false;
   public mnemonic2Seed: any;
+  public keyringPairTypes: object = [
+    {text: 'Edwards (ed25519)', value: 'ed25519'},
+    {text: 'Schnorrkel (sr25519)', value: 'sr25519'}];
 
   public mnemonicGenerate(): void {
     this.mnemonicGenerated = mnemonicGenerate();
@@ -88,11 +98,11 @@ export default class About extends Vue {
     this.keyring = new Keyring();
     const pairAlice = this.keyring.addFromMnemonic(this.mnemonicGenerated, {}, this.keyringPairType);
     this.keyringPair = this.keyring.getPair(pairAlice.address).address;
-    this.keyringPairType = this.keyring._type;
   }
 
   public mounted() {
     this.mnemonicGenerate();
+    this.mainGenerateFromMnemonic();
   }
 }
 </script>
