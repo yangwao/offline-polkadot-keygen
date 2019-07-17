@@ -48,23 +48,27 @@
     </div>
 
     <h3>Advanced creation options</h3>
-    <div class="field">
-      <label class="label">keypair crypto type</label>
-      <div class="control">
-        <div class="select">
-          <select v-model="keyringPairType" @change="mainGenerateFromMnemonic()">
-            <option
-              v-for="option in keyringPairTypes"
-              v-bind:value="option.value"
-              v-bind:key="option.value"
-              :selected ="option.value == 'sr25519'">
-              {{ option.text }}
-            </option>
-          </select>
+    <div class="columns">
+      <div class="column is-6 is-offset-3">
+        <div class="field">
+          <label class="label">keypair crypto type</label>
+          <div class="control">
+            <div class="select">
+              <select v-model="keyringPairType" @change="mainGenerateFromMnemonic()">
+                <option
+                  v-for="option in keyringPairTypes"
+                  v-bind:value="option.value"
+                  v-bind:key="option.value"
+                  :selected ="option.value == 'sr25519'">
+                  {{ option.text }}
+                </option>
+              </select>
+            </div>
+          </div>
         </div>
       </div>
     </div>
-
+    
     <div class="field">
       <label class="label">secret derivation path</label>
       <div class="control">
@@ -89,18 +93,30 @@
       </div>
     </div>
 
-    <button @click="saveKeystoreToJson()" class="button is-info">Preview Account</button>
-    <a @click="saveKeystoreToJson()" 
-      :disabled="passwordKeystore.length < 1" 
-      class="button is-info" 
-      :href='`data:${keystoreToDownload}`' 
-      :download="`${keyringPair}.json`">Download Account</a>
-    <br>
-    <br>
-    <p>Created keyring pair from mnemonic address:</p>    
-    <li>Public Key: {{keyringPairPubKey}}</li>
-    <li>Address (SS58): {{keyringPair}}</li>
-    <li>Keystore: {{keystoreJson}}</li>
+    <div class="columns">
+      <div class="column">
+        <a @click="saveKeystoreToJson()" 
+          :disabled="passwordKeystore.length < 1" 
+          class="button is-info" 
+          :href='`data:${keystoreToDownload}`' 
+          :download="`${keyringPair}.json`">💾 Download Account</a>
+        <br>
+        <br>
+        <p>Created keyring pair</p>    
+        <li>Public Key: {{keyringPairPubKey}}</li>
+        <li>Address (SS58): {{keyringPair}}</li>
+      </div>
+    </div>
+
+    <a @click="saveKeystoreToJson(); showKeystore = !showKeystore" 
+          class="button is-info">👁 Preview Account</a>
+    <p v-show="showKeystore">Keystore: {{keystoreJson}}</p>
+    <div class="columns">
+      <div class="column">
+        
+      </div>
+    </div>
+    
   </div>
 </template>
 
@@ -121,13 +137,14 @@ export default class Subkey extends Vue {
   public keyringPairPubKey: string = '';
   public accountTags: string = '';
   public keyAccountName: string = '';
+  public passwordKeystore: string = '';
   public keyringPairHexSeed: string = '';
-  public meta: object = { name: '', tags: [], whenCreated: 0};
   public keystoreJson: object = {};
   public keystoreToDownload: string = '';
-  public passwordKeystore: string = '';
   public mnemonicGenerated: string = '';
   public validMnemonic: boolean = false;
+  public showKeystore: boolean = false;
+  public meta: object = { name: '', tags: [], whenCreated: 0};
   public keyringPairTypes: object = [
     {text: 'Edwards (ed25519)', value: 'ed25519'},
     {text: 'Schnorrkel (sr25519)', value: 'sr25519'}];
