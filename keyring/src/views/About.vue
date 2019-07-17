@@ -17,6 +17,16 @@
         placeholder="new account name">
       </div>
     </div>
+
+    <div class="field">
+      <label class="label">tags</label>
+      <div class="control">
+        <input v-model="accountTags" 
+        class="input is-info" 
+        type="text" 
+        placeholder="tags, comma separated">
+      </div>
+    </div>
     
     <p><strong>mnemonic seed</strong></p>
     <div class="field has-addons">
@@ -29,7 +39,7 @@
       </div>
       <div class="control">
         <button @click="mnemonicGenerate(); mainGenerateFromMnemonic()" 
-        class="button is-info">generate Mnemonic</button><br>  
+        class="button is-info">↻ mnemonic</button><br>  
       </div>
     </div>
 
@@ -66,7 +76,7 @@
     <div class="field">
       <label class="label">secret derivation path</label>
       <div class="control">
-        <input class="input is-info" 
+        <input class="input" 
           type="text" 
           placeholder="secret derivation path" 
           disabled>
@@ -77,7 +87,7 @@
     <div class="field has-addons">
       <div class="control is-expanded">
         <input v-model="keyringPairHexSeed"
-          class="input "   
+          class="input"   
           type="text"
           disabled>
       </div>
@@ -108,10 +118,9 @@ import { Vue, Component } from 'vue-property-decorator';
 import Credits from '@/components/Credits.vue';
 
 import Keyring from '@polkadot/keyring';
+import { waitReady } from '@polkadot/wasm-crypto';
 import { u8aToHex, hexToU8a } from '@polkadot/util';
 import { mnemonicGenerate, mnemonicToSeed, mnemonicValidate } from '@polkadot/util-crypto';
-import { waitReady } from '@polkadot/wasm-crypto';
-// import stringToU8a from '@polkadot/util/string/toU8a';
 
 @Component({
   components: {
@@ -124,6 +133,7 @@ export default class About extends Vue {
   public keyringPair: string = '';
   public keyringPairType: string = 'sr25519';
   public keyringPairPubKey: string = '';
+  public accountTags: string = '';
   public keyAccountName: string = '';
   public keyringPairHexSeed: string = '';
   public meta: object = { name: '', tags: [], whenCreated: 0};
@@ -158,7 +168,7 @@ export default class About extends Vue {
       this.keyring = new Keyring();
       this.meta = {
         name: this.keyAccountName,
-        tags: [],
+        tags: this.accountTags.split(','),
         whenCreated: Date.now() };
       const pairAlice = this.keyring.addFromMnemonic(this.mnemonicGenerated, this.meta, this.keyringPairType);
       this.keyringPair = this.keyring.getPair(pairAlice.address).address;
