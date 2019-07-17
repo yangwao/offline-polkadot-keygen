@@ -5,7 +5,7 @@
         <a href="https://www.parity.io/substrate/">Substrate</a> accounts</h1>   
         <li>Compatible with <a href="https://github.com/paritytech/substrate/tree/master/subkey">Subkey</a> utility 💯</li>
         <li>written in Vue.js & Typescript</li>
-        <li>offline-first (PWA)</li> 
+        <li>offline-first (thanks to service-workers 😋)</li> 
     </div>
 
     <div class="field">
