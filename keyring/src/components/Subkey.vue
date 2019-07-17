@@ -68,7 +68,7 @@
         </div>
       </div>
     </div>
-    
+
     <div class="field">
       <label class="label">secret derivation path</label>
       <div class="control">
@@ -79,17 +79,19 @@
       </div>
     </div>
 
-    <p><strong>raw seed - experimental</strong></p>
+    <p><strong>raw hex seed - experimental</strong></p>
     <div class="field has-addons">
       <div class="control is-expanded">
-        <input v-model="keyringPairHexSeed"
+        <input v-model="hexSeed"
+          @input="isHexSeed()"
           class="input"   
-          type="text"
-          disabled>
+          type="text">
       </div>
       <div class="control">
-        <button @click="mainGenerateFromHex()" 
-        class="button is-info" disabled>Preview from raw seed</button><br>  
+        <button @click="mainGenerateFromRawSeed()" 
+        class="button is-info"
+        :disabled="!isValidRawSeed"
+        >from hex seed</button><br>  
       </div>
     </div>
 
@@ -100,8 +102,7 @@
           class="button is-info" 
           :href='`data:${keystoreToDownload}`' 
           :download="`${keyringPair}.json`">💾 Download Account</a>
-        <br>
-        <br>
+        <br><br>
         <p>Created keyring pair</p>    
         <li>Public Key: {{keyringPairPubKey}}</li>
         <li>Address (SS58): {{keyringPair}}</li>
@@ -109,7 +110,7 @@
     </div>
 
     <a @click="saveKeystoreToJson(); showKeystore = !showKeystore" 
-          class="button is-info">👁 Preview Account</a>
+          class="button is-info">👁 Preview Account</a><br><br>
     <p v-show="showKeystore">Keystore: {{keystoreJson}}</p>
     <div class="columns">
       <div class="column">
@@ -125,7 +126,7 @@ import { Vue, Component } from 'vue-property-decorator';
 
 import Keyring from '@polkadot/keyring';
 import { waitReady } from '@polkadot/wasm-crypto';
-import { u8aToHex, hexToU8a } from '@polkadot/util';
+import { isHex, u8aToHex, hexToU8a } from '@polkadot/util';
 import { mnemonicGenerate, mnemonicToSeed, mnemonicValidate } from '@polkadot/util-crypto';
 
 @Component
@@ -138,11 +139,12 @@ export default class Subkey extends Vue {
   public accountTags: string = '';
   public keyAccountName: string = '';
   public passwordKeystore: string = '';
-  public keyringPairHexSeed: string = '';
+  public hexSeed: string = '';
   public keystoreJson: object = {};
   public keystoreToDownload: string = '';
   public mnemonicGenerated: string = '';
   public validMnemonic: boolean = false;
+  public isValidRawSeed: boolean = false;
   public showKeystore: boolean = false;
   public meta: object = { name: '', tags: [], whenCreated: 0};
   public keyringPairTypes: object = [
@@ -152,15 +154,22 @@ export default class Subkey extends Vue {
   public mnemonicGenerate(): void {
     this.mnemonicGenerated = mnemonicGenerate();
   }
-  // public generateSeedFromMnemonic(): void {
-  //   this.keyringPairHexSeed = u8aToHex(mnemonicToSeed(this.mnemonicGenerated));
+
+  public isHexSeed(): boolean {
+    this.isValidRawSeed = isHex(this.hexSeed) && this.hexSeed.length === 66;
+    return isHex(this.hexSeed) && this.hexSeed.length === 66;
+  }
+  // public generateHexSeedFromMnemonic(): void {
+  //   this.hexSeed = u8aToHex(mnemonicToSeed(this.mnemonicGenerated));
   // }
+
   public isValidMnemonic(): void {
     this.validMnemonic = mnemonicValidate(this.mnemonicGenerated);
   }
-  public mainGenerateFromHex(): void {
+
+  public mainGenerateFromRawSeed(): void {
     this.keyring = new Keyring();
-    const pairAlice = this.keyring.addFromSeed(hexToU8a(this.keyringPairHexSeed), this.meta, this.keyringPairType);
+    const pairAlice = this.keyring.addFromSeed(hexToU8a(this.hexSeed), this.meta, this.keyringPairType);
     this.keyringPair = this.keyring.getPair(pairAlice.address).address;
     this.keyringPairPubKey = u8aToHex(this.keyring.getPair(pairAlice.address).publicKey);
   }
@@ -180,7 +189,7 @@ export default class Subkey extends Vue {
   }
 
   public saveKeystoreToJson(): void {
-    this.mainGenerateFromMnemonic();
+    // this.mainGenerateFromMnemonic();
     this.keystoreJson = this.keyring.toJson(this.keyringPair, this.passwordKeystore);
     this.keystoreToDownload = 'text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(this.keystoreJson));
   }
