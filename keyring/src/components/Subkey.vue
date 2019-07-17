@@ -96,7 +96,7 @@
     </div>
 
     <div class="columns">
-      <div class="column">
+      <div class="column is-10 is-offset-1">
         <a @click="saveKeystoreToJson()" 
           :disabled="passwordKeystore.length < 1" 
           class="button is-info" 
