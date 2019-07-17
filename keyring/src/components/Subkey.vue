@@ -125,7 +125,6 @@ import { mnemonicGenerate, mnemonicToSeed, mnemonicValidate } from '@polkadot/ut
 
 @Component
 export default class Subkey extends Vue {
-  public init: boolean = false;
   public keyring: any = '';
   public keyringPair: string = '';
   public keyringPairType: string = 'sr25519';
@@ -192,7 +191,6 @@ export default class Subkey extends Vue {
     await waitReady();
     this.mnemonicGenerate();
     this.mainGenerateFromMnemonic();
-    this.init = true;
   }
 
   public mounted(): void {
