@@ -6,7 +6,6 @@
         <li>Compatible with <a href="https://github.com/paritytech/substrate/tree/master/subkey">Subkey</a> utility 💯</li>
         <li>written in Vue.js & Typescript</li>
         <li>offline-first (PWA)</li> 
-        <button @click="deferDueWasm()" class="button is-success" :disabled="init">Beam me up, Scotty a.k.a initialize wasm-crypto</button>
     </div>
 
     <div class="field">
@@ -19,7 +18,7 @@
       </div>
     </div>
     
-    <p><strong>mnemonic Seed</strong></p>
+    <p><strong>mnemonic seed</strong></p>
     <div class="field has-addons">
       <div class="control is-expanded">
         <input v-model="mnemonicGenerated" 
@@ -111,6 +110,7 @@ import Credits from '@/components/Credits.vue';
 import Keyring from '@polkadot/keyring';
 import { u8aToHex, hexToU8a } from '@polkadot/util';
 import { mnemonicGenerate, mnemonicToSeed, mnemonicValidate } from '@polkadot/util-crypto';
+import { waitReady } from '@polkadot/wasm-crypto';
 // import stringToU8a from '@polkadot/util/string/toU8a';
 
 @Component({
@@ -172,12 +172,15 @@ export default class About extends Vue {
     this.keystoreToDownload = 'text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(this.keystoreJson));
   }
 
-  public deferDueWasm(): void {
+  public async mountWasmCrypto(): Promise<void> {
+    await waitReady();
     this.mnemonicGenerate();
     this.mainGenerateFromMnemonic();
-    this.init = true
+    this.init = true;
   }
-  public mounted(): void {  
+
+  public mounted(): void {
+    this.mountWasmCrypto();
   }
 }
 </script>
