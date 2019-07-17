@@ -1,13 +1,8 @@
 <template>
   <div class="about">
     <div class="intro">
-      <h1>Offline Keyring Generator for 
-        <a href="https://www.parity.io/substrate/">Substrate</a> accounts</h1>   
-        <li>Compatible with <a href="https://github.com/paritytech/substrate/tree/master/subkey">Subkey</a> utility 💯</li>
-        <li>written in Vue.js & Typescript</li>
-        <li>offline-first</li> 
+      <About/>
     </div>
-
     <div class="field">
       <label class="label">name</label>
       <div class="control">
@@ -115,6 +110,7 @@
 
 <script lang="ts">
 import { Vue, Component } from 'vue-property-decorator';
+import About from '@/components/About.vue';
 import Credits from '@/components/Credits.vue';
 
 import Keyring from '@polkadot/keyring';
@@ -124,10 +120,11 @@ import { mnemonicGenerate, mnemonicToSeed, mnemonicValidate } from '@polkadot/ut
 
 @Component({
   components: {
+    About,
     Credits,
   },
 })
-export default class About extends Vue {
+export default class Subkey extends Vue {
   public init: boolean = false;
   public keyring: any = '';
   public keyringPair: string = '';
