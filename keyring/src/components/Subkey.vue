@@ -201,7 +201,4 @@ export default class Subkey extends Vue {
 }
 </script>
 <style scoped lang="scss">
-.intro {
-  padding: 80px 0 80px;
-}
 </style>
