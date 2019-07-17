@@ -112,12 +112,6 @@
     <a @click="saveKeystoreToJson(); showKeystore = !showKeystore" 
           class="button is-info">👁 Preview Account</a><br><br>
     <p v-show="showKeystore">Keystore: {{keystoreJson}}</p>
-    <div class="columns">
-      <div class="column">
-        
-      </div>
-    </div>
-    
   </div>
 </template>
 
