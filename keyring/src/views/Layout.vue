@@ -1,10 +1,12 @@
 <template>
-  <div class="about">
-    <div class="intro">
-      <About/>
+  <div class="container is-fluid">
+    <div class="columns">
+      <div class="column is-6 is-offset-3">
+        <About/>
+        <Subkey/>
+        <Credits/>
+      </div>
     </div>
-    <Subkey/>
-    <Credits/>
   </div>
 </template>
 
@@ -24,7 +26,4 @@ import Subkey from '@/components/Subkey.vue';
 export default class Layout extends Vue {}
 </script>
 <style scoped lang="scss">
-.intro {
-  padding: 80px 0 80px;
-}
 </style>

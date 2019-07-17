@@ -1,8 +1,5 @@
 <template>
-  <div class="about">
-    <div class="intro">
-      <About/>
-    </div>
+  <div class="subkey">
     <div class="field">
       <label class="label">name</label>
       <div class="control">
@@ -104,26 +101,18 @@
     <li>Public Key: {{keyringPairPubKey}}</li>
     <li>Address (SS58): {{keyringPair}}</li>
     <li>Keystore: {{keystoreJson}}</li>
-    <Credits/>
   </div>
 </template>
 
 <script lang="ts">
 import { Vue, Component } from 'vue-property-decorator';
-import About from '@/components/About.vue';
-import Credits from '@/components/Credits.vue';
 
 import Keyring from '@polkadot/keyring';
 import { waitReady } from '@polkadot/wasm-crypto';
 import { u8aToHex, hexToU8a } from '@polkadot/util';
 import { mnemonicGenerate, mnemonicToSeed, mnemonicValidate } from '@polkadot/util-crypto';
 
-@Component({
-  components: {
-    About,
-    Credits,
-  },
-})
+@Component
 export default class Subkey extends Vue {
   public init: boolean = false;
   public keyring: any = '';

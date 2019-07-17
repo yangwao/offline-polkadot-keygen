@@ -1,15 +1,15 @@
 <template>
   <div class="credits">
-    <h3>Powered ⚡️🔋 By</h3>
+    <h3> ⚡️🔋 Powered By</h3>
     <ul>
       <li><a href="https://polkadot.js.org/common/">https://polkadot.js.org/common/</a></li>
     </ul>
-    <h3>Author 🐬🥳🥰</h3>
+    <h3>Author Matej Nemcek 🐬🥳🥰</h3>
     <ul>
-      <li><a href="https://hypersignal.xyz" target="_blank" rel="noopener">hypersignal.xyz</a></li>
       <li><a href="https://twitter.com/yangwao" target="_blank" rel="noopener">twitter/yangwao</a></li>
       <li><a href="https://github.com/yangwao" target="_blank" rel="noopener">github/yangwao</a></li>
       <li><a href="https://t.me/yangwao" target="_blank" rel="noopener">telegram/yangwao</a></li>
+      <li><a href="https://hypersignal.xyz" target="_blank" rel="noopener">hypersignal.xyz</a></li>
     </ul>
   </div>
 </template>
