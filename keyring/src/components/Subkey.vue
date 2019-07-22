@@ -1,7 +1,7 @@
 <template>
   <div class="subkey">
     <div class="field">
-      <label class="label">name</label>
+      <label class="label">👤 name</label>
       <div class="control">
         <input v-model="keyAccountName" 
         class="input is-info" 
@@ -11,7 +11,7 @@
     </div>
 
     <div class="field">
-      <label class="label">tags</label>
+      <label class="label">🏷 tags</label>
       <div class="control">
         <input v-model="accountTags" 
         class="input is-info" 
@@ -20,13 +20,13 @@
       </div>
     </div>
     
-    <p><strong>mnemonic seed</strong></p>
+    <p><strong>🧠 mnemonic seed</strong></p>
     <div class="field has-addons">
       <div class="control is-expanded">
         <input v-model="mnemonicGenerated" 
-          @input="isValidMnemonic()" 
+          @input="validateMnemonic(); mainGenerateFromMnemonic()" 
           class="input " 
-          v-bind:class="{ 'is-danger': !validMnemonic }"  
+          v-bind:class="{ 'is-danger': !isValidMnemonic }"  
           type="text">
       </div>
       <div class="control">
@@ -36,7 +36,7 @@
     </div>
 
     <div class="field">
-      <label class="label">password</label>
+      <label class="label">🔑 password</label>
       <div class="control">
         <input v-model="passwordKeystore" 
         class="input" 
@@ -95,6 +95,27 @@
       </div>
     </div>
 
+    <div class="field">
+      <label class="label">data</label>
+      <div class="control">
+        <input v-model="toVerify.data"
+        @input="verifySignature()"
+        class="input"
+        type="text">
+      </div>
+    </div>
+    <div class="field">
+      <label class="label">signature (only for sr25519)</label>
+      <div class="control">
+        <input v-model="toVerify.signature"
+        @input="verifySignature()"
+        v-bind:class="{ 'is-success': isValidSignature}" 
+        class="input"
+        type="text">
+      </div>
+      <p v-show="isValidSignature" class="help is-success">signature is valid</p>
+    </div>
+
     <div class="columns">
       <div class="column is-10 is-offset-1">
         <a @click="saveKeystoreToJson()" 
@@ -122,6 +143,7 @@ import Keyring from '@polkadot/keyring';
 import { waitReady } from '@polkadot/wasm-crypto';
 import { isHex, u8aToHex, hexToU8a } from '@polkadot/util';
 import { mnemonicGenerate, mnemonicToSeed, mnemonicValidate } from '@polkadot/util-crypto';
+import { naclVerify, schnorrkelVerify } from '@polkadot/util-crypto';
 
 @Component
 export default class Subkey extends Vue {
@@ -136,14 +158,16 @@ export default class Subkey extends Vue {
   public keystoreJson: object = {};
   public keystoreToDownload: string = '';
   public mnemonicGenerated: string = '';
-  public validMnemonic: boolean = false;
+  public isValidMnemonic: boolean = false;
   public isValidRawSeed: boolean = false;
   public showKeystore: boolean = false;
   public meta: object = { name: '', tags: [], whenCreated: 0};
   public keyringPairTypes: object = [
     {text: 'Edwards (ed25519)', value: 'ed25519'},
     {text: 'Schnorrkel (sr25519)', value: 'sr25519'}];
-
+  public isValidSignature: boolean = false;
+  public isHexData: boolean = false;
+  public toVerify = { data: '' as string, signature: '' as string };
   public mnemonicGenerate(): void {
     this.mnemonicGenerated = mnemonicGenerate();
   }
@@ -152,12 +176,16 @@ export default class Subkey extends Vue {
     this.isValidRawSeed = isHex(this.hexSeed) && this.hexSeed.length === 66;
     return isHex(this.hexSeed) && this.hexSeed.length === 66;
   }
-  // public generateHexSeedFromMnemonic(): void {
-  //   this.hexSeed = u8aToHex(mnemonicToSeed(this.mnemonicGenerated));
-  // }
 
-  public isValidMnemonic(): void {
-    this.validMnemonic = mnemonicValidate(this.mnemonicGenerated);
+  public verifySignature(): void {
+    if (isHex(this.toVerify.signature)) {
+      this.isValidSignature = schnorrkelVerify(this.toVerify.data,
+        this.toVerify.signature,
+        this.keyringPairPubKey);
+    }
+  }
+  public validateMnemonic(): void {
+    this.isValidMnemonic = mnemonicValidate(this.mnemonicGenerated);
   }
 
   public mainGenerateFromRawSeed(): void {
@@ -168,8 +196,8 @@ export default class Subkey extends Vue {
   }
 
   public mainGenerateFromMnemonic(): void {
-    this.isValidMnemonic();
-    if (this.validMnemonic) {
+    this.validateMnemonic();
+    if (this.isValidMnemonic) {
       this.keyring = new Keyring();
       this.meta = {
         name: this.keyAccountName,
@@ -182,7 +210,6 @@ export default class Subkey extends Vue {
   }
 
   public saveKeystoreToJson(): void {
-    // this.mainGenerateFromMnemonic();
     this.keystoreJson = this.keyring.toJson(this.keyringPair, this.passwordKeystore);
     this.keystoreToDownload = 'text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(this.keystoreJson));
   }
