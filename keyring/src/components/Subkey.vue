@@ -96,12 +96,33 @@
     </div>
 
     <div class="field">
-      <label class="label">data</label>
+      <label class="label">data to sign</label>
+      <div class="control">
+        <input v-model="toSign.data"
+        @input="signData()"
+        class="input"
+        type="text"
+        :disabled="keyringPairType !== 'sr25519'">
+      </div>
+    </div>
+    <div class="field">
+      <label class="label">generated signature (only for sr25519)</label>
+      <div class="control">
+        <input v-model="toSign.signature"
+        class="input"
+        type="text"
+        disabled>
+      </div>
+    </div>
+
+    <div class="field">
+      <label class="label">signed data</label>
       <div class="control">
         <input v-model="toVerify.data"
         @input="verifySignature()"
         class="input"
-        type="text">
+        type="text"
+        :disabled="keyringPairType !== 'sr25519'">
       </div>
     </div>
     <div class="field">
@@ -111,7 +132,8 @@
         @input="verifySignature()"
         v-bind:class="{ 'is-success': isValidSignature}" 
         class="input"
-        type="text">
+        type="text"
+        :disabled="keyringPairType !== 'sr25519'">
       </div>
       <p v-show="isValidSignature" class="help is-success">signature is valid</p>
     </div>
@@ -141,7 +163,7 @@ import { Vue, Component } from 'vue-property-decorator';
 
 import Keyring from '@polkadot/keyring';
 import { waitReady } from '@polkadot/wasm-crypto';
-import { isHex, u8aToHex, hexToU8a } from '@polkadot/util';
+import { isHex, u8aToHex, hexToU8a, stringToU8a } from '@polkadot/util';
 import { mnemonicGenerate, mnemonicToSeed, mnemonicValidate } from '@polkadot/util-crypto';
 import { naclVerify, schnorrkelVerify } from '@polkadot/util-crypto';
 
@@ -166,8 +188,22 @@ export default class Subkey extends Vue {
     {text: 'Edwards (ed25519)', value: 'ed25519'},
     {text: 'Schnorrkel (sr25519)', value: 'sr25519'}];
   public isValidSignature: boolean = false;
-  public isHexData: boolean = false;
+  public signedData: string = '';
+  // public isHexData: boolean = false;
+  public currentPair: any = '';
   public toVerify = { data: '' as string, signature: '' as string };
+  public toSign = { data: '' as string, signature: '' as string };
+
+  public signData(): void {
+    this.signedData = u8aToHex(
+      this.currentPair.sign(stringToU8a(this.toSign.data)));
+        // isHex
+        //   ? hexToU8a(this.toSign.data)
+        //   : stringToU8a(this.toSign.data)
+
+    this.toSign.signature = this.signedData;
+  }
+
   public mnemonicGenerate(): void {
     this.mnemonicGenerated = mnemonicGenerate();
   }
@@ -206,6 +242,7 @@ export default class Subkey extends Vue {
       const pairAlice = this.keyring.addFromMnemonic(this.mnemonicGenerated, this.meta, this.keyringPairType);
       this.keyringPair = this.keyring.getPair(pairAlice.address).address;
       this.keyringPairPubKey = u8aToHex(this.keyring.getPair(pairAlice.address).publicKey);
+      this.currentPair = this.keyring.getPair(pairAlice.address);
     }
   }
 

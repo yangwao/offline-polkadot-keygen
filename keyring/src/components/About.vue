@@ -11,14 +11,11 @@
         </div>
         <div class="column has-text-left">
           <h3><strong>This tool can do</strong></h3>
-          <li>create Substrate compatible account from mnemonic seed</li>
-          <li>create Substrate compatible account from hex seed</li>
+          <li>create Substrate compatible account from mnemonic and hex seed</li>
+          <li>sign data</li> 
           <li>verify signature</li>
-          <li><del>sign (not yet)</del></li> 
         </div>
       </div>
-      
-      
     </div>
   </div>
 </template>
