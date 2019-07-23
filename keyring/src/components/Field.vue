@@ -20,12 +20,12 @@ import { Vue, Component, Prop } from 'vue-property-decorator';
 
 @Component
 export default class Field extends Vue {
-  @Prop({default: 'text'}) public type: string;  
-  @Prop(String) value;
-  @Prop(String) label;
-  @Prop(String) placeholder;
-  @Prop(String) classList;
-  @Prop(Boolean) disabled;
+  @Prop({default: 'text'}) public type!: string;
+  @Prop(String) public value!: string;
+  @Prop(String) public label!: string;
+  @Prop(String) public placeholder!: string;
+  @Prop(String) public classList!: string;
+  @Prop(Boolean) public disabled!: boolean;
 }
 
 </script>
