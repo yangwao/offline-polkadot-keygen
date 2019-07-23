@@ -1,31 +1,23 @@
 <template>
   <div class="subkey">
-    <div class="field">
-      <label class="label">👤 name</label>
-      <div class="control">
-        <input v-model="keyAccountName" 
-        class="input is-info" 
-        type="text" 
-        placeholder="new account name">
-      </div>
-    </div>
+    <field 
+      v-model="keyAccountName"
+      label="👤name"
+      classList="input is-info"
+      placeholder="new account name" />
 
-    <div class="field">
-      <label class="label">🏷 tags</label>
-      <div class="control">
-        <input v-model="accountTags" 
-        class="input is-info" 
-        type="text" 
-        placeholder="tags, comma separated">
-      </div>
-    </div>
+    <field 
+      v-model="accountTags"
+      label="🏷 tags"
+      classList="input is-info"
+      placeholder="tags, comma separated" />
     
     <p><strong>🧠 mnemonic seed</strong></p>
     <div class="field has-addons">
       <div class="control is-expanded">
         <input v-model="mnemonicGenerated" 
           @input="validateMnemonic(); mainGenerateFromMnemonic()" 
-          class="input " 
+          class="input" 
           v-bind:class="{ 'is-danger': !isValidMnemonic }"  
           type="text">
       </div>
@@ -35,17 +27,13 @@
       </div>
     </div>
 
-    <div class="field">
-      <label class="label">🔑 password</label>
-      <div class="control">
-        <input v-model="passwordKeystore" 
-        class="input" 
-        v-bind:class="{ 'is-danger': !passwordKeystore}" 
-        type="password" 
-        placeholder="password">
-      </div>
-      <p v-show="passwordKeystore.length < 1" class="help is-danger">password is mandatory</p>
-    </div>
+    <field 
+      v-model="passwordKeystore"
+      label="🔑 password"
+      classList="input"
+      type="password"
+      placeholder="password" />
+    <p v-show="passwordKeystore.length < 1" class="help is-danger">password is mandatory</p>
 
     <h3>Advanced creation options</h3>
     <div class="columns">
@@ -95,48 +83,34 @@
       </div>
     </div>
 
-    <div class="field">
-      <label class="label">data to sign</label>
-      <div class="control">
-        <input v-model="toSign.data"
-        @input="signData()"
-        class="input"
-        type="text"
-        :disabled="keyringPairType !== 'sr25519'">
-      </div>
-    </div>
-    <div class="field">
-      <label class="label">generated signature (only for sr25519)</label>
-      <div class="control">
-        <input v-model="toSign.signature"
-        class="input"
-        type="text"
-        disabled>
-      </div>
-    </div>
+    <field 
+      v-model="toSign.data"
+      @input="signData()"
+      label="data to 🔑sign"
+      classList="input is-info"
+      :disabled="keyringPairType !== 'sr25519'" />
 
-    <div class="field">
-      <label class="label">signed data</label>
-      <div class="control">
-        <input v-model="toVerify.data"
-        @input="verifySignature()"
-        class="input"
-        type="text"
-        :disabled="keyringPairType !== 'sr25519'">
-      </div>
-    </div>
-    <div class="field">
-      <label class="label">signature (only for sr25519)</label>
-      <div class="control">
-        <input v-model="toVerify.signature"
-        @input="verifySignature()"
-        v-bind:class="{ 'is-success': isValidSignature}" 
-        class="input"
-        type="text"
-        :disabled="keyringPairType !== 'sr25519'">
-      </div>
-      <p v-show="isValidSignature" class="help is-success">signature is valid</p>
-    </div>
+    <field 
+      v-model="toSign.signature"
+      label="generated signature (only for sr25519)"
+      classList="input"
+      :disabled="true" />
+
+    <field 
+      v-model="toVerify.data"
+      label="signed data"
+      @input="verifySignature()"
+      classList="input is-info"
+      :disabled="keyringPairType !== 'sr25519'" />
+
+    <field
+      v-model="toVerify.signature"
+      label="signature (only for sr25519)"
+      @input="verifySignature()"
+      classList="input is-info"
+      :disabled="keyringPairType !== 'sr25519'"
+      />
+    <p v-show="isValidSignature" class="help is-success">signature is valid</p>
 
     <div class="columns">
       <div class="column is-10 is-offset-1">
@@ -160,6 +134,7 @@
 
 <script lang="ts">
 import { Vue, Component } from 'vue-property-decorator';
+import field from '@/components/Field.vue';
 
 import Keyring from '@polkadot/keyring';
 import { waitReady } from '@polkadot/wasm-crypto';
@@ -167,7 +142,11 @@ import { isHex, u8aToHex, hexToU8a, stringToU8a } from '@polkadot/util';
 import { mnemonicGenerate, mnemonicToSeed, mnemonicValidate } from '@polkadot/util-crypto';
 import { naclVerify, schnorrkelVerify } from '@polkadot/util-crypto';
 
-@Component
+@Component({
+  components: {
+    field,
+  },
+})
 export default class Subkey extends Vue {
   public keyring: any = '';
   public keyringPair: string = '';
