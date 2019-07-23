@@ -1,5 +1,18 @@
 <template>
-  <div class="subkey">
+  <div class="subkey">  
+    <div class="tabs">
+      <ul>
+        <li 
+          v-for="tab in tabs"
+          v-bind:value="tab.name"
+          v-bind:key="tab.name"
+          @click="setActiveTab(tab.name)">
+          <a>{{tab.displayName}}</a>
+        </li>
+      </ul>
+    </div>
+    
+    <div v-show="displayActiveContent('create')">
     <field 
       v-model="keyAccountName"
       label="👤name"
@@ -83,37 +96,9 @@
       </div>
     </div>
 
-    <field 
-      v-model="toSign.data"
-      @input="signData()"
-      label="data to 🔑sign"
-      classList="input is-info"
-      :disabled="keyringPairType !== 'sr25519'" />
-
-    <field 
-      v-model="toSign.signature"
-      label="generated signature (only for sr25519)"
-      classList="input"
-      :disabled="true" />
-
-    <field 
-      v-model="toVerify.data"
-      label="signed data"
-      @input="verifySignature()"
-      classList="input is-info"
-      :disabled="keyringPairType !== 'sr25519'" />
-
-    <field
-      v-model="toVerify.signature"
-      label="signature (only for sr25519)"
-      @input="verifySignature()"
-      classList="input is-info"
-      :disabled="keyringPairType !== 'sr25519'"
-      />
-    <p v-show="isValidSignature" class="help is-success">signature is valid</p>
-
     <div class="columns">
       <div class="column is-10 is-offset-1">
+        <br>
         <a @click="saveKeystoreToJson()" 
           :disabled="passwordKeystore.length < 1" 
           class="button is-info" 
@@ -125,7 +110,41 @@
         <li>Address (SS58): {{keyringPair}}</li>
       </div>
     </div>
+    </div>
 
+    <div v-show="displayActiveContent('sign')">
+      <field 
+        v-model="toSign.data"
+        @input="signData()"
+        label="data to 🔑sign"
+        classList="input is-info"
+        :disabled="keyringPairType !== 'sr25519'" />
+
+      <field 
+        v-model="toSign.signature"
+        label="generated signature (only for sr25519)"
+        classList="input"
+        :disabled="true" />
+    </div>
+
+    <div v-show="displayActiveContent('verify')">
+      <field 
+        v-model="toVerify.data"
+        label="signed data"
+        @input="verifySignature()"
+        classList="input is-info"
+        :disabled="keyringPairType !== 'sr25519'" />
+
+      <field
+        v-model="toVerify.signature"
+        label="signature (only for sr25519)"
+        @input="verifySignature()"
+        classList="input is-info"
+        :disabled="keyringPairType !== 'sr25519'" />
+      <p v-show="isValidSignature" class="help is-success">signature is valid</p>
+    </div>
+    
+    <br>
     <a @click="saveKeystoreToJson(); showKeystore = !showKeystore" 
           class="button is-info">👁 Preview Account</a><br><br>
     <p v-show="showKeystore">Keystore: {{keystoreJson}}</p>
@@ -148,6 +167,25 @@ import { naclVerify, schnorrkelVerify } from '@polkadot/util-crypto';
   },
 })
 export default class Subkey extends Vue {
+  public tabs: object = [
+    {
+      name: 'create',
+      displayName: 'Create Account',
+    },
+    // {
+    //   name: 'load',
+    //   displayName: '~Load Account~'
+    // },
+    {
+      name: 'sign',
+      displayName: 'Sign data',
+    },
+    {
+      name: 'verify',
+      displayName: 'Verify Signature',
+    },
+  ];
+  public activeTabName: string = 'create';
   public keyring: any = '';
   public keyringPair: string = '';
   public keyringPairType: string = 'sr25519';
@@ -168,10 +206,17 @@ export default class Subkey extends Vue {
     {text: 'Schnorrkel (sr25519)', value: 'sr25519'}];
   public isValidSignature: boolean = false;
   public signedData: string = '';
-  // public isHexData: boolean = false;
   public currentPair: any = '';
   public toVerify = { data: '' as string, signature: '' as string };
   public toSign = { data: '' as string, signature: '' as string };
+
+  public setActiveTab(name: string): void {
+    this.activeTabName = name;
+  }
+
+  public displayActiveContent(name: string): boolean {
+    return this.activeTabName === name;
+  }
 
   public signData(): void {
     this.signedData = u8aToHex(
@@ -241,5 +286,3 @@ export default class Subkey extends Vue {
   }
 }
 </script>
-<style scoped lang="scss">
-</style>
