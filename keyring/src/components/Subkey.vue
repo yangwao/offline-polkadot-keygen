@@ -110,14 +110,30 @@
         <li>Address (SS58): {{keyringPairAddress}}</li>
       </div>
     </div>
-    <div class="columns">
-      <div class="column is-10 is-offset-1">
-        <accountReader @load="accountToImport = $event"/>
-
-        <a @click="importAccountFromJson()"
-        class="button is-info">📂 Import Account</a>
-      </div>
     </div>
+    
+    <div v-show="displayActiveContent('load')">
+
+      <div class="columns">
+        <div class="column is-10 is-offset-1">
+          <field 
+            v-model="passwordKeystore"
+            label="🔑 password"
+            classList="input"
+            type="password"
+            placeholder="password" />
+          <p v-show="passwordKeystore.length < 1" class="help is-danger">password is mandatory</p>
+        </div>
+      </div>
+
+      <div class="columns">
+        <div class="column is-10 is-offset-1">        
+          <input type="file" @change="onFileChange" />
+          <br><br>
+          <a @click="importAccountFromJson()"
+          class="button is-info">📂 Import Account</a>
+        </div>
+      </div>
     </div>
 
     <div v-show="displayActiveContent('sign')">
@@ -163,7 +179,6 @@
 <script lang="ts">
 import { Vue, Component } from 'vue-property-decorator';
 import field from '@/components/Field.vue';
-import accountReader from '@/components/AccountReader.vue';
 
 import Keyring from '@polkadot/keyring';
 import { waitReady } from '@polkadot/wasm-crypto';
@@ -174,7 +189,6 @@ import { naclVerify, schnorrkelVerify } from '@polkadot/util-crypto';
 @Component({
   components: {
     field,
-    accountReader,
   },
 })
 export default class Subkey extends Vue {
@@ -183,10 +197,10 @@ export default class Subkey extends Vue {
       name: 'create',
       displayName: 'Create Account',
     },
-    // {
-    //   name: 'load',
-    //   displayName: '~Load Account~'
-    // },
+    {
+      name: 'load',
+      displayName: 'Load Account',
+    },
     {
       name: 'sign',
       displayName: 'Sign data',
@@ -196,7 +210,7 @@ export default class Subkey extends Vue {
       displayName: 'Verify Signature',
     },
   ];
-  public activeTabName: string = 'create';
+  public activeTabName: string = 'load';
   public keyring: any = '';
   public keyringPairAddress: string = '';
   public keyringPairType: string = 'sr25519';
@@ -220,7 +234,23 @@ export default class Subkey extends Vue {
   public currentPair: any = '';
   public toVerify = { data: '' as string, signature: '' as string };
   public toSign = { data: '' as string, signature: '' as string };
-  public accountToImport: object = {};
+  public accountToImport: any = '';
+
+  public onFileChange(e: any): void {
+      const files = e.target.files;
+      if (!files.length) {
+          return;
+        }
+      this.createInput(files[0]);
+  }
+
+  public createInput(file: any): void {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        this.accountToImport = reader.result;
+      };
+      reader.readAsText(file);
+  }
 
   public importAccountFromJson(file: Uint8Array): void {
     const json = JSON.parse(u8aToString(file));
