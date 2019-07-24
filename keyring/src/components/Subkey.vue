@@ -46,7 +46,8 @@
       classList="input"
       type="password"
       placeholder="password" />
-    <p v-show="passwordKeystore.length < 1" class="help is-danger">password is mandatory</p>
+    <p v-show="passwordKeystore.length < 1" class="help is-danger">
+      password is mandatory</p>
 
     <h3>Advanced creation options</h3>
     <div class="columns">
@@ -113,23 +114,41 @@
     </div>
     
     <div v-show="displayActiveContent('load')">
-
       <div class="columns">
         <div class="column is-10 is-offset-1">
+          <div class="field">
+            <div class="file is-info has-name is-fullwidth is-right">
+              <label class="file-label">
+                <input class="file-input" 
+                  type="file" name="account"
+                  @change="onFileChange">
+                <span class="file-cta">
+                  <span class="file-icon">
+                    📂
+                    <!-- <i class="fas fa-upload"></i> -->
+                  </span>
+                  <span class="file-label">
+                     Choose Account
+                  </span>
+                </span>
+                <span class="file-name">
+                  {{accountToImport}}
+                </span>
+              </label>
+            </div>
+          </div>
           <field 
             v-model="passwordKeystore"
             label="🔑 password"
             classList="input"
             type="password"
             placeholder="password" />
-          <p v-show="passwordKeystore.length < 1" class="help is-danger">password is mandatory</p>
+          <p v-show="passwordKeystore.length < 1" class="help is-danger">
+            password is mandatory</p>
         </div>
       </div>
-
       <div class="columns">
-        <div class="column is-10 is-offset-1">        
-          <input type="file" @change="onFileChange" />
-          <br><br>
+        <div class="column is-10 is-offset-1">
           <a @click="importAccountFromJson()"
           class="button is-info">📂 Import Account</a>
         </div>
@@ -181,6 +200,8 @@ import { Vue, Component } from 'vue-property-decorator';
 import field from '@/components/Field.vue';
 
 import Keyring from '@polkadot/keyring';
+import createPair from '@polkadot/keyring/pair';
+// import uiKeyring from '@polkadot/ui-keyring';
 import { waitReady } from '@polkadot/wasm-crypto';
 import { isHex, u8aToHex, hexToU8a, stringToU8a, u8aToString } from '@polkadot/util';
 import { mnemonicGenerate, mnemonicToSeed, mnemonicValidate } from '@polkadot/util-crypto';
@@ -195,11 +216,11 @@ export default class Subkey extends Vue {
   public tabs: object = [
     {
       name: 'create',
-      displayName: 'Create Account',
+      displayName: 'Create',
     },
     {
       name: 'load',
-      displayName: 'Load Account',
+      displayName: 'Load',
     },
     {
       name: 'sign',
@@ -214,7 +235,7 @@ export default class Subkey extends Vue {
   public keyring: any = '';
   public keyringPairAddress: string = '';
   public keyringPairType: string = 'sr25519';
-  public keyringPairPubKey: string = '';
+  public keyringPairPubKey: any = '';
   public accountTags: string = '';
   public keyAccountName: string = '';
   public passwordKeystore: string = '';
@@ -235,6 +256,7 @@ export default class Subkey extends Vue {
   public toVerify = { data: '' as string, signature: '' as string };
   public toSign = { data: '' as string, signature: '' as string };
   public accountToImport: any = '';
+  public restoredPair: any = '';
 
   public onFileChange(e: any): void {
       const files = e.target.files;
@@ -252,10 +274,23 @@ export default class Subkey extends Vue {
       reader.readAsText(file);
   }
 
-  public importAccountFromJson(file: Uint8Array): void {
-    const json = JSON.parse(u8aToString(file));
+  public importAccountFromJson(): void {
+    // const json = JSON.parse(u8aToString(this.accountToImport));
+    this.keyring.removePair(this.keyringPairAddress);
+    const json = JSON.parse(this.accountToImport);
+    console.log(json)
     this.keyringPairPubKey = this.keyring.decodeAddress(json.address, true);
     this.keyringPairAddress = this.keyring.encodeAddress(this.keyringPairPubKey);
+    const type = Array.isArray(json.encoding.content) ? json.encoding.content[1] : 'ed25519';
+    this.restoredPair = createPair(type,
+      { publicKey: this.keyring.decodeAddress(json.address, true)},
+      json.meta,
+      hexToU8a(json.encoded)
+    );
+    this.restoredPair.decodePkcs8(this.passwordKeystore);
+    this.keyringPairPubKey = u8aToHex(this.keyringPairPubKey);
+    this.keyring.addPair(this.restoredPair, this.passwordKeystore);
+    this.currentPair = this.keyring.getPair(this.keyringPairAddress)
   }
 
   public setActiveTab(name: string): void {
