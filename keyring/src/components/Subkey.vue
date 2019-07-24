@@ -159,14 +159,14 @@
       <field 
         v-model="toSign.data"
         @input="signData()"
-        label="data to 🔑sign"
+        label="📜data to ✍️sign"
         classList="input is-info"
         placeholder="data you want to sign"
         :disabled="keyringPairType !== 'sr25519'" />
 
       <field 
         v-model="toSign.signature"
-        label="generated signature (only for sr25519)"
+        label="generated 🔏signature (only for sr25519)"
         classList="input"
         :disabled="true" />
     </div>
@@ -174,24 +174,28 @@
     <div v-show="displayActiveContent('verify')">
       <field 
         v-model="toVerify.data"
-        label="signed data"
+        label="📜✍️signed data"
         @input="verifySignature()"
         classList="input is-info"
+        placeholder="insert your 🔏 signed data"
         :disabled="keyringPairType !== 'sr25519'" />
 
       <field
         v-model="toVerify.signature"
-        label="signature (only for sr25519)"
+        label="🔏signature (only for sr25519)"
         @input="verifySignature()"
         classList="input is-info"
+        placeholder="green if valid"
         :disabled="keyringPairType !== 'sr25519'" />
       <p v-show="isValidSignature" class="help is-success">signature is valid</p>
     </div>
     
     <br>
     <a @click="saveKeystoreToJson(); showKeystore = !showKeystore" 
-          class="button is-info">👁 Preview Account</a><br><br>
+      class="button is-info">👁 Preview Account</a><br><br>
     <p v-show="showKeystore">Keystore: {{keystoreJson}}</p>
+    <a @click="flushMemory()"
+      class="button is-danger">Flush 🧠 Memory</a>
   </div>
 </template>
 
@@ -231,7 +235,7 @@ export default class Subkey extends Vue {
       displayName: 'Verify Signature',
     },
   ];
-  public activeTabName: string = 'load';
+  public activeTabName: string = 'create';
   public keyring: any = '';
   public keyringPairAddress: string = '';
   public keyringPairType: string = 'sr25519';
@@ -278,7 +282,6 @@ export default class Subkey extends Vue {
     // const json = JSON.parse(u8aToString(this.accountToImport));
     this.keyring.removePair(this.keyringPairAddress);
     const json = JSON.parse(this.accountToImport);
-    console.log(json)
     this.keyringPairPubKey = this.keyring.decodeAddress(json.address, true);
     this.keyringPairAddress = this.keyring.encodeAddress(this.keyringPairPubKey);
     const type = Array.isArray(json.encoding.content) ? json.encoding.content[1] : 'ed25519';
@@ -359,6 +362,23 @@ export default class Subkey extends Vue {
     this.keystoreJson = this.keyring.toJson(this.keyringPairAddress, this.passwordKeystore);
     this.keystoreToDownload =
       'text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(this.keystoreJson));
+  }
+
+  public flushMemory(): void {
+    this.keyring.removePair(this.keyringPairAddress);
+    this.currentPair = '';
+    this.mnemonicGenerated = '';
+    this.keyringPairAddress = '';
+    this.keyringPairPubKey = '';
+    this.keyringPairTypes = {};
+    this.keystoreJson = {};
+    this.passwordKeystore = '';
+    this.restoredPair = '';
+    this.signedData = '';
+    this.meta = {};
+    this.toVerify = { data: '', signature: '' };
+    this.toSign = { data: '', signature: '' };
+    this.accountToImport = {};
   }
 
   public async mountWasmCrypto(): Promise<void> {
