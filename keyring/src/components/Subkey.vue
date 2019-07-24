@@ -103,11 +103,19 @@
           :disabled="passwordKeystore.length < 1" 
           class="button is-info" 
           :href='`data:${keystoreToDownload}`' 
-          :download="`${keyringPair}.json`">💾 Download Account</a>
+          :download="`${keyringPairAddress}.json`">💾 Download Account</a>
         <br><br>
         <p>Created keyring pair</p>    
         <li>Public Key: {{keyringPairPubKey}}</li>
-        <li>Address (SS58): {{keyringPair}}</li>
+        <li>Address (SS58): {{keyringPairAddress}}</li>
+      </div>
+    </div>
+    <div class="columns">
+      <div class="column is-10 is-offset-1">
+        <accountReader @load="accountToImport = $event"/>
+
+        <a @click="importAccountFromJson()"
+        class="button is-info">📂 Import Account</a>
       </div>
     </div>
     </div>
@@ -118,6 +126,7 @@
         @input="signData()"
         label="data to 🔑sign"
         classList="input is-info"
+        placeholder="data you want to sign"
         :disabled="keyringPairType !== 'sr25519'" />
 
       <field 
@@ -154,16 +163,18 @@
 <script lang="ts">
 import { Vue, Component } from 'vue-property-decorator';
 import field from '@/components/Field.vue';
+import accountReader from '@/components/AccountReader.vue';
 
 import Keyring from '@polkadot/keyring';
 import { waitReady } from '@polkadot/wasm-crypto';
-import { isHex, u8aToHex, hexToU8a, stringToU8a } from '@polkadot/util';
+import { isHex, u8aToHex, hexToU8a, stringToU8a, u8aToString } from '@polkadot/util';
 import { mnemonicGenerate, mnemonicToSeed, mnemonicValidate } from '@polkadot/util-crypto';
 import { naclVerify, schnorrkelVerify } from '@polkadot/util-crypto';
 
 @Component({
   components: {
     field,
+    accountReader,
   },
 })
 export default class Subkey extends Vue {
@@ -187,7 +198,7 @@ export default class Subkey extends Vue {
   ];
   public activeTabName: string = 'create';
   public keyring: any = '';
-  public keyringPair: string = '';
+  public keyringPairAddress: string = '';
   public keyringPairType: string = 'sr25519';
   public keyringPairPubKey: string = '';
   public accountTags: string = '';
@@ -209,6 +220,13 @@ export default class Subkey extends Vue {
   public currentPair: any = '';
   public toVerify = { data: '' as string, signature: '' as string };
   public toSign = { data: '' as string, signature: '' as string };
+  public accountToImport: object = {};
+
+  public importAccountFromJson(file: Uint8Array): void {
+    const json = JSON.parse(u8aToString(file));
+    this.keyringPairPubKey = this.keyring.decodeAddress(json.address, true);
+    this.keyringPairAddress = this.keyring.encodeAddress(this.keyringPairPubKey);
+  }
 
   public setActiveTab(name: string): void {
     this.activeTabName = name;
@@ -250,8 +268,9 @@ export default class Subkey extends Vue {
 
   public mainGenerateFromRawSeed(): void {
     this.keyring = new Keyring();
-    const pairAlice = this.keyring.addFromSeed(hexToU8a(this.hexSeed), this.meta, this.keyringPairType);
-    this.keyringPair = this.keyring.getPair(pairAlice.address).address;
+    const pairAlice = this.keyring.addFromSeed(hexToU8a(this.hexSeed),
+      this.meta, this.keyringPairType);
+    this.keyringPairAddress = this.keyring.getPair(pairAlice.address).address;
     this.keyringPairPubKey = u8aToHex(this.keyring.getPair(pairAlice.address).publicKey);
   }
 
@@ -263,16 +282,18 @@ export default class Subkey extends Vue {
         name: this.keyAccountName,
         tags: this.accountTags.split(','),
         whenCreated: Date.now() };
-      const pairAlice = this.keyring.addFromMnemonic(this.mnemonicGenerated, this.meta, this.keyringPairType);
-      this.keyringPair = this.keyring.getPair(pairAlice.address).address;
+      const pairAlice = this.keyring.addFromMnemonic(this.mnemonicGenerated,
+        this.meta, this.keyringPairType);
+      this.keyringPairAddress = this.keyring.getPair(pairAlice.address).address;
       this.keyringPairPubKey = u8aToHex(this.keyring.getPair(pairAlice.address).publicKey);
       this.currentPair = this.keyring.getPair(pairAlice.address);
     }
   }
 
   public saveKeystoreToJson(): void {
-    this.keystoreJson = this.keyring.toJson(this.keyringPair, this.passwordKeystore);
-    this.keystoreToDownload = 'text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(this.keystoreJson));
+    this.keystoreJson = this.keyring.toJson(this.keyringPairAddress, this.passwordKeystore);
+    this.keystoreToDownload =
+      'text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(this.keystoreJson));
   }
 
   public async mountWasmCrypto(): Promise<void> {
