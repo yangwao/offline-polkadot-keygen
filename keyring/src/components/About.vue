@@ -3,14 +3,14 @@
     <div class="intro">
       <div class="columns">
         <div class="column has-text-left">
-          <h1>Offline Keyring Generator for 
+          <h1>Offline Keyring Tool for 
           <a href="https://www.parity.io/substrate/">Substrate</a> accounts</h1>   
           <li>Compatible with <a href="https://github.com/paritytech/substrate/tree/master/subkey">Subkey</a> utility 💯</li>
           <li>written in Vue.js & Typescript</li>
           <li>offline-first</li>    
         </div>
         <div class="column has-text-left">
-          <h3><strong>This tool can do</strong></h3>
+          <h3><strong>This tool can:</strong></h3>
           <li>create Substrate compatible account from mnemonic and hex seed</li>
           <li>load account</li>
           <li>sign data</li> 

@@ -166,7 +166,7 @@
 
       <field 
         v-model="toSign.signature"
-        label="generated 🔏signature (only for sr25519)"
+        label="generated 🔏signature (sr25519 only)"
         classList="input"
         :disabled="true" />
     </div>
@@ -182,10 +182,10 @@
 
       <field
         v-model="toVerify.signature"
-        label="🔏signature (only for sr25519)"
+        label="🔏signature (sr25519 only)"
         @input="verifySignature()"
         classList="input is-info"
-        placeholder="green if valid"
+        placeholder="will be green if signature is valid"
         :disabled="keyringPairType !== 'sr25519'" />
       <p v-show="isValidSignature" class="help is-success">signature is valid</p>
     </div>
@@ -195,7 +195,7 @@
       class="button is-info">👁 Preview Account</a><br><br>
     <p v-show="showKeystore">Keystore: {{keystoreJson}}</p>
     <a @click="flushMemory()"
-      class="button is-danger">Flush 🧠 Memory</a>
+      class="button is-danger">🚽Flush 🧠 Memory</a>
   </div>
 </template>
 
@@ -220,19 +220,19 @@ export default class Subkey extends Vue {
   public tabs: object = [
     {
       name: 'create',
-      displayName: 'Create',
+      displayName: '✨Create',
     },
     {
       name: 'load',
-      displayName: 'Load',
+      displayName: '📂Load',
     },
     {
       name: 'sign',
-      displayName: 'Sign data',
+      displayName: '✍️Sign data',
     },
     {
       name: 'verify',
-      displayName: 'Verify Signature',
+      displayName: '🔏Verify Signature',
     },
   ];
   public activeTabName: string = 'create';
@@ -262,6 +262,7 @@ export default class Subkey extends Vue {
   public accountToImport: any = '';
   public restoredPair: any = '';
 
+  // put me into component
   public onFileChange(e: any): void {
       const files = e.target.files;
       if (!files.length) {
@@ -278,6 +279,15 @@ export default class Subkey extends Vue {
       reader.readAsText(file);
   }
 
+  // put me into component
+  public setActiveTab(name: string): void {
+    this.activeTabName = name;
+  }
+
+  public displayActiveContent(name: string): boolean {
+    return this.activeTabName === name;
+  }
+
   public importAccountFromJson(): void {
     // const json = JSON.parse(u8aToString(this.accountToImport));
     this.keyring.removePair(this.keyringPairAddress);
@@ -288,20 +298,11 @@ export default class Subkey extends Vue {
     this.restoredPair = createPair(type,
       { publicKey: this.keyring.decodeAddress(json.address, true)},
       json.meta,
-      hexToU8a(json.encoded)
-    );
+      hexToU8a(json.encoded));
     this.restoredPair.decodePkcs8(this.passwordKeystore);
     this.keyringPairPubKey = u8aToHex(this.keyringPairPubKey);
     this.keyring.addPair(this.restoredPair, this.passwordKeystore);
-    this.currentPair = this.keyring.getPair(this.keyringPairAddress)
-  }
-
-  public setActiveTab(name: string): void {
-    this.activeTabName = name;
-  }
-
-  public displayActiveContent(name: string): boolean {
-    return this.activeTabName === name;
+    this.currentPair = this.keyring.getPair(this.keyringPairAddress);
   }
 
   public signData(): void {
