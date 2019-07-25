@@ -205,11 +205,9 @@ import field from '@/components/Field.vue';
 
 import Keyring from '@polkadot/keyring';
 import createPair from '@polkadot/keyring/pair';
-// import uiKeyring from '@polkadot/ui-keyring';
 import { waitReady } from '@polkadot/wasm-crypto';
 import { isHex, u8aToHex, hexToU8a, stringToU8a, u8aToString } from '@polkadot/util';
-import { mnemonicGenerate, mnemonicToSeed, mnemonicValidate } from '@polkadot/util-crypto';
-import { naclVerify, schnorrkelVerify } from '@polkadot/util-crypto';
+import { mnemonicGenerate, mnemonicToSeed, mnemonicValidate, schnorrkelVerify } from '@polkadot/util-crypto';
 
 @Component({
   components: {
