@@ -193,7 +193,7 @@
     <br>
     <a @click="saveKeystoreToJson(); showKeystore = !showKeystore" 
       class="button is-info">👁 Preview Account</a><br><br>
-    <p v-show="showKeystore">Keystore: {{keystoreJson}}</p>
+    <p v-show="showKeystore">{{keystoreJson}}</p>
     <a @click="flushMemory()"
       class="button is-danger">🚽Flush 🧠 Memory</a>
   </div>
@@ -315,10 +315,6 @@ export default class Subkey extends Vue {
     this.toSign.signature = this.signedData;
   }
 
-  public mnemonicGenerate(): void {
-    this.mnemonicGenerated = mnemonicGenerate();
-  }
-
   public isHexSeed(): boolean {
     this.isValidRawSeed = isHex(this.hexSeed) && this.hexSeed.length === 66;
     return isHex(this.hexSeed) && this.hexSeed.length === 66;
@@ -331,6 +327,12 @@ export default class Subkey extends Vue {
         this.keyringPairPubKey);
     }
   }
+
+  public mnemonicGenerate(): void {
+    this.mnemonicGenerated = mnemonicGenerate();
+    this.keyring = new Keyring();
+  }
+
   public validateMnemonic(): void {
     this.isValidMnemonic = mnemonicValidate(this.mnemonicGenerated);
   }
@@ -346,7 +348,6 @@ export default class Subkey extends Vue {
   public mainGenerateFromMnemonic(): void {
     this.validateMnemonic();
     if (this.isValidMnemonic) {
-      this.keyring = new Keyring();
       this.meta = {
         name: this.keyAccountName,
         tags: this.accountTags.split(','),
@@ -360,6 +361,7 @@ export default class Subkey extends Vue {
   }
 
   public saveKeystoreToJson(): void {
+    this.mainGenerateFromMnemonic();
     this.keystoreJson = this.keyring.toJson(this.keyringPairAddress, this.passwordKeystore);
     this.keystoreToDownload =
       'text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(this.keystoreJson));
