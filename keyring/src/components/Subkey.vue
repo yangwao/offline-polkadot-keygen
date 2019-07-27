@@ -50,12 +50,13 @@
       password is mandatory</p>
 
     <h3>Advanced creation options</h3>
+    
     <div class="columns">
-      <div class="column is-6 is-offset-3">
-        <div class="field">
-          <label class="label">keypair crypto type</label>
-          <div class="control">
-            <div class="select">
+      <div class="column is-12">
+        <label class="label">keypair crypto type</label>
+        <div class="field has-addons">
+          <div class="control is-expanded">
+            <div class="select is-fullwidth">
               <select v-model="keyringPairType" @change="mainGenerateFromMnemonic()">
                 <option
                   v-for="option in keyringPairTypes"
@@ -67,33 +68,39 @@
               </select>
             </div>
           </div>
+          <div class="control">
+            <a @click="showAdvancedOptions = !showAdvancedOptions" 
+              class="button is-info">🔩advanced options</a>
+          </div>
         </div>
       </div>
     </div>
 
-    <div class="field">
-      <label class="label">secret derivation path</label>
-      <div class="control">
-        <input class="input" 
-          type="text" 
-          placeholder="secret derivation path" 
-          disabled>
+    <div v-show="showAdvancedOptions">
+      <div class="field">
+        <label class="label">secret derivation path</label>
+        <div class="control">
+          <input class="input" 
+            type="text" 
+            placeholder="secret derivation path" 
+            disabled>
+        </div>
       </div>
-    </div>
 
-    <p><strong>raw hex seed - experimental</strong></p>
-    <div class="field has-addons">
-      <div class="control is-expanded">
-        <input v-model="hexSeed"
-          @input="isHexSeed()"
-          class="input"   
-          type="text">
-      </div>
-      <div class="control">
-        <button @click="mainGenerateFromRawSeed()" 
-        class="button is-info"
-        :disabled="!isValidRawSeed"
-        >from hex seed</button><br>  
+      <p><strong>raw hex seed - experimental</strong></p>
+      <div class="field has-addons">
+        <div class="control is-expanded">
+          <input v-model="hexSeed"
+            @input="isHexSeed()"
+            class="input"   
+            type="text">
+        </div>
+        <div class="control">
+          <button @click="mainGenerateFromRawSeed()" 
+          class="button is-info"
+          :disabled="!isValidRawSeed"
+          >from hex seed</button><br>  
+        </div>
       </div>
     </div>
 
@@ -174,7 +181,7 @@
     <div v-show="displayActiveContent('verify')">
       <field 
         v-model="toVerify.data"
-        label="📜✍️signed data"
+        label="📜🔏signed data"
         @input="verifySignature()"
         classList="input is-info"
         placeholder="insert your 🔏 signed data"
@@ -233,6 +240,7 @@ export default class Subkey extends Vue {
       displayName: '🔏Verify Signature',
     },
   ];
+  public showAdvancedOptions: boolean = false;
   public activeTabName: string = 'create';
   public keyring: any = '';
   public keyringPairAddress: string = '';
