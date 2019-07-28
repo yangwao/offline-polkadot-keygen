@@ -393,7 +393,6 @@ export default class Subkey extends Vue {
       //   this.meta, this.keyringPairType);
       const pairAlice = this.keyring.addFromUri(`${this.mnemonicGenerated}${this.derivePath}`, 
         this.meta, this.keyringPairType)
-      console.log(pairAlice)
       this.keyringPairAddress = this.keyring.getPair(pairAlice.address).address;
       this.keyringPairPubKey = u8aToHex(this.keyring.getPair(pairAlice.address).publicKey);
       this.currentPair = this.keyring.getPair(pairAlice.address);
