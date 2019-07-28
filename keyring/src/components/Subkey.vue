@@ -43,7 +43,7 @@
     <field 
       v-model="passwordKeystore"
       label="🔑 password"
-      classList="input"
+      classList="input is-info"
       type="password"
       placeholder="password" />
     <p v-show="passwordKeystore.length < 1" class="help is-danger">
@@ -114,10 +114,6 @@
           class="button is-info" 
           :href='`data:${keystoreToDownload}`' 
           :download="`${keyringPairAddress}.json`">💾 Download Account</a>
-        <br><br>
-        <p>Created keyring pair</p>    
-        <li>Public Key: {{keyringPairPubKey}}</li>
-        <li>Address (SS58): {{keyringPairAddress}}</li>
       </div>
     </div>
     </div>
@@ -178,6 +174,13 @@
         label="generated 🔏signature (sr25519 only)"
         classList="input"
         :disabled="true" />
+
+      <field
+        v-model="isHexData"
+        label="hex input data"
+        classList="input"
+        disabled/>
+
     </div>
 
     <div v-show="displayActiveContent('verify')">
@@ -197,8 +200,18 @@
         placeholder="will be green if signature is valid"
         :disabled="keyringPairType !== 'sr25519'" />
       <p v-show="isValidSignature" class="help is-success">signature is valid</p>
+
+      <field
+        v-model="isHexSignedData"
+        label="hex input data"
+        classList="input"
+        disabled/>
+
     </div>
     
+    <br>
+    <li>Public_Key {{keyringPairPubKey}}</li>
+    <li>Address_SS58 {{keyringPairAddress}}</li>
     <br>
     <a @click="saveKeystoreToJson(); showKeystore = !showKeystore" 
       class="button is-info">👁 Preview Account</a><br><br>
@@ -254,6 +267,8 @@ export default class Subkey extends Vue {
   public keyAccountName: string = '';
   public passwordKeystore: string = '';
   public hexSeed: string = '';
+  public isHexData: string = 'No';
+  public isHexSignedData: string = 'No';
   public keystoreJson: object = {};
   public keystoreToDownload: string = '';
   public mnemonicGenerated: string = '';
@@ -316,13 +331,18 @@ export default class Subkey extends Vue {
   }
 
   public signData(): void {
+    this.isHexSignData();
     this.signedData = u8aToHex(
-      this.currentPair.sign(stringToU8a(this.toSign.data)));
-        // isHex
-        //   ? hexToU8a(this.toSign.data)
-        //   : stringToU8a(this.toSign.data)
-
+      this.currentPair.sign(
+        isHex(this.toSign.data)
+          ? hexToU8a(this.toSign.data)
+          : stringToU8a(this.toSign.data)));
     this.toSign.signature = this.signedData;
+  }
+  public isHexSignData(): void {
+    this.isHexData = isHex(this.toSign.data) 
+      ? 'Yes'
+      : 'No'
   }
 
   public isHexSeed(): boolean {
@@ -331,11 +351,18 @@ export default class Subkey extends Vue {
   }
 
   public verifySignature(): void {
+    this.isHexSignedDataF();
     if (isHex(this.toVerify.signature)) {
       this.isValidSignature = schnorrkelVerify(this.toVerify.data,
         this.toVerify.signature,
         this.keyringPairPubKey);
     }
+  }
+
+  public isHexSignedDataF(): void {
+    this.isHexSignedData = isHex(this.toVerify.data)
+      ? 'Yes'
+      : 'No'
   }
 
   public mnemonicGenerate(): void {

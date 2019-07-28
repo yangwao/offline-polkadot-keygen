@@ -11,7 +11,7 @@
         </div>
         <div class="column has-text-left">
           <h3><strong>This tool can:</strong></h3>
-          <li>create Substrate compatible account from mnemonic and hex seed</li>
+          <li>create Substrate account from mnemonic and hex seed</li>
           <li>load account</li>
           <li>sign data</li> 
           <li>verify signature</li>

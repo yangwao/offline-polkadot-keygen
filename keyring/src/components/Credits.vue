@@ -3,8 +3,9 @@
     <h3> ⚡️🔋 Powered By</h3>
     <ul>
       <li><a href="https://polkadot.js.org/common/">https://polkadot.js.org/common/</a></li>
+      <li><a href="https://github.com/yangwao/offline-polkadot-keygen">Source</a></li>
     </ul>
-    <h3>Author Matej Nemcek 🐬🥳🥰</h3>
+    <h3>Author Matej Nemček 🐬🥳🥰</h3>
     <ul>
       <li><a href="https://twitter.com/yangwao" target="_blank" rel="noopener">twitter/yangwao</a></li>
       <li><a href="https://github.com/yangwao" target="_blank" rel="noopener">github/yangwao</a></li>
