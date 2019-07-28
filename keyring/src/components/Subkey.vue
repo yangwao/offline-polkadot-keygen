@@ -210,15 +210,24 @@
 
     </div>
     
+
     <br>
     <li>Public_Key {{keyringPairPubKey}}</li>
     <li>Address_SS58 {{keyringPairAddress}}</li>
     <br>
-    <a @click="saveKeystoreToJson(); showKeystore = !showKeystore" 
-      class="button is-info">👁 Preview Account</a><br><br>
+    <div class="columns">
+      <div class="column is-5 is-offset-1">
+        <a @click="saveKeystoreToJson(); showKeystore = !showKeystore" 
+          class="button is-info">👁 Preview Account</a><br><br>    
+      </div>
+      <div class="column is-5">
+        <a @click="flushMemory()"
+          class="button is-black">🚽Flush 🧠 Memory</a>
+      </div>
+    </div>
+    
     <p v-show="showKeystore">{{keystoreJson}}</p>
-    <a @click="flushMemory()"
-      class="button is-danger">🚽Flush 🧠 Memory</a>
+    
   </div>
 </template>
 
@@ -250,7 +259,7 @@ export default class Subkey extends Vue {
     },
     {
       name: 'sign',
-      displayName: '✍️Sign data',
+      displayName: '✍️Sign Data',
     },
     {
       name: 'verify',
@@ -405,7 +414,7 @@ export default class Subkey extends Vue {
         name: this.keyAccountName,
         tags: this.accountTags.split(','),
         whenCreated: Date.now() };
-    if(!this.deriveValidate(this.derivePath, this.pairType)) {
+    if (!this.deriveValidate(this.derivePath, this.pairType)) {
       const pairAlice = this.keyring.addFromUri(`${this.mnemonicGenerated}${this.derivePath}`,
         this.meta, this.pairType);
       this.keyringPairAddress = this.keyring.getPair(pairAlice.address).address;
