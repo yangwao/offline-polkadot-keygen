@@ -80,10 +80,12 @@
       <div class="field">
         <label class="label">secret derivation path</label>
         <div class="control">
-          <input class="input" 
+          <input 
+            class="input is-info" 
             type="text" 
-            placeholder="secret derivation path" 
-            disabled>
+            placeholder="'/<soft-key>//<hard-key>' The '/<soft-key>' and '//<hard-key>' maybe repeated and mixed" 
+            v-model="derivePath"
+            @input="generateKeyringFromSURI()">
         </div>
       </div>
 
@@ -214,7 +216,8 @@ import Keyring from '@polkadot/keyring';
 import createPair from '@polkadot/keyring/pair';
 import { waitReady } from '@polkadot/wasm-crypto';
 import { isHex, u8aToHex, hexToU8a, stringToU8a, u8aToString } from '@polkadot/util';
-import { mnemonicGenerate, mnemonicToSeed, mnemonicValidate, schnorrkelVerify } from '@polkadot/util-crypto';
+import { keyExtractPath, mnemonicGenerate, mnemonicToSeed,
+  mnemonicValidate, schnorrkelVerify } from '@polkadot/util-crypto';
 
 @Component({
   components: {
@@ -241,6 +244,7 @@ export default class Subkey extends Vue {
     },
   ];
   public showAdvancedOptions: boolean = false;
+  public derivePath: string = '';
   public activeTabName: string = 'create';
   public keyring: any = '';
   public keyringPairAddress: string = '';
@@ -358,12 +362,28 @@ export default class Subkey extends Vue {
         name: this.keyAccountName,
         tags: this.accountTags.split(','),
         whenCreated: Date.now() };
-      const pairAlice = this.keyring.addFromMnemonic(this.mnemonicGenerated,
-        this.meta, this.keyringPairType);
+      // const pairAlice = this.keyring.addFromMnemonic(this.mnemonicGenerated,
+      //   this.meta, this.keyringPairType);
+      const pairAlice = this.keyring.addFromUri(`${this.mnemonicGenerated}${this.derivePath}`, 
+        this.meta, this.keyringPairType)
+      console.log(pairAlice)
       this.keyringPairAddress = this.keyring.getPair(pairAlice.address).address;
       this.keyringPairPubKey = u8aToHex(this.keyring.getPair(pairAlice.address).publicKey);
       this.currentPair = this.keyring.getPair(pairAlice.address);
     }
+  }
+
+  // DRY
+  public generateKeyringFromSURI(): void {
+    this.meta = {
+        name: this.keyAccountName,
+        tags: this.accountTags.split(','),
+        whenCreated: Date.now() };
+    const pairAlice = this.keyring.addFromUri(`${this.mnemonicGenerated}${this.derivePath}`, 
+      this.meta, this.keyringPairType)
+    this.keyringPairAddress = this.keyring.getPair(pairAlice.address).address;
+    this.keyringPairPubKey = u8aToHex(this.keyring.getPair(pairAlice.address).publicKey);
+    this.currentPair = this.keyring.getPair(pairAlice.address);
   }
 
   public saveKeystoreToJson(): void {
