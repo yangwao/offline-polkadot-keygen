@@ -87,7 +87,7 @@
             v-model="derivePath"
             @input="generateKeyringFromSURI()">
         </div>
-        <p v-show="deriveValidate(derivePath, pairType)" class="help is-danger">Re-constructed path "" does not match input</p>
+        <p v-show="deriveValidate(derivePath, pairType)" class="help is-danger">{{deriveValidate(derivePath, pairType)}}</p>
       </div>
 
       <p><strong>raw hex seed - experimental</strong></p>
