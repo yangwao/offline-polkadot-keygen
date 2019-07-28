@@ -57,7 +57,7 @@
         <div class="field has-addons">
           <div class="control is-expanded">
             <div class="select is-fullwidth">
-              <select v-model="keyringPairType" @change="mainGenerateFromMnemonic()">
+              <select v-model="pairType" @change="mainGenerateFromMnemonic()">
                 <option
                   v-for="option in keyringPairTypes"
                   v-bind:value="option.value"
@@ -87,6 +87,7 @@
             v-model="derivePath"
             @input="generateKeyringFromSURI()">
         </div>
+        <p v-show="deriveValidate(derivePath, pairType)" class="help is-danger">Re-constructed path "" does not match input</p>
       </div>
 
       <p><strong>raw hex seed - experimental</strong></p>
@@ -167,7 +168,7 @@
         label="📜data to ✍️sign"
         classList="input is-info"
         placeholder="data you want to sign"
-        :disabled="keyringPairType !== 'sr25519'" />
+        :disabled="pairType !== 'sr25519'" />
 
       <field 
         v-model="toSign.signature"
@@ -190,7 +191,7 @@
         @input="verifySignature()"
         classList="input is-info"
         placeholder="insert your 🔏 signed data"
-        :disabled="keyringPairType !== 'sr25519'" />
+        :disabled="pairType !== 'sr25519'" />
 
       <field
         v-model="toVerify.signature"
@@ -198,7 +199,7 @@
         @input="verifySignature()"
         classList="input is-info"
         placeholder="will be green if signature is valid"
-        :disabled="keyringPairType !== 'sr25519'" />
+        :disabled="pairType !== 'sr25519'" />
       <p v-show="isValidSignature" class="help is-success">signature is valid</p>
 
       <field
@@ -261,7 +262,7 @@ export default class Subkey extends Vue {
   public activeTabName: string = 'create';
   public keyring: any = '';
   public keyringPairAddress: string = '';
-  public keyringPairType: string = 'sr25519';
+  public pairType: string = 'sr25519';
   public keyringPairPubKey: any = '';
   public accountTags: string = '';
   public keyAccountName: string = '';
@@ -340,9 +341,9 @@ export default class Subkey extends Vue {
     this.toSign.signature = this.signedData;
   }
   public isHexSignData(): void {
-    this.isHexData = isHex(this.toSign.data) 
+    this.isHexData = isHex(this.toSign.data)
       ? 'Yes'
-      : 'No'
+      : 'No';
   }
 
   public isHexSeed(): boolean {
@@ -362,7 +363,7 @@ export default class Subkey extends Vue {
   public isHexSignedDataF(): void {
     this.isHexSignedData = isHex(this.toVerify.data)
       ? 'Yes'
-      : 'No'
+      : 'No';
   }
 
   public mnemonicGenerate(): void {
@@ -376,7 +377,7 @@ export default class Subkey extends Vue {
   public mainGenerateFromRawSeed(): void {
     this.keyring = new Keyring();
     const pairAlice = this.keyring.addFromSeed(hexToU8a(this.hexSeed),
-      this.meta, this.keyringPairType);
+      this.meta, this.pairType);
     this.keyringPairAddress = this.keyring.getPair(pairAlice.address).address;
     this.keyringPairPubKey = u8aToHex(this.keyring.getPair(pairAlice.address).publicKey);
   }
@@ -389,9 +390,9 @@ export default class Subkey extends Vue {
         tags: this.accountTags.split(','),
         whenCreated: Date.now() };
       // const pairAlice = this.keyring.addFromMnemonic(this.mnemonicGenerated,
-      //   this.meta, this.keyringPairType);
-      const pairAlice = this.keyring.addFromUri(`${this.mnemonicGenerated}${this.derivePath}`, 
-        this.meta, this.keyringPairType)
+      //   this.meta, this.pairType);
+      const pairAlice = this.keyring.addFromUri(`${this.mnemonicGenerated}${this.derivePath}`,
+        this.meta, this.pairType);
       this.keyringPairAddress = this.keyring.getPair(pairAlice.address).address;
       this.keyringPairPubKey = u8aToHex(this.keyring.getPair(pairAlice.address).publicKey);
       this.currentPair = this.keyring.getPair(pairAlice.address);
@@ -404,13 +405,33 @@ export default class Subkey extends Vue {
         name: this.keyAccountName,
         tags: this.accountTags.split(','),
         whenCreated: Date.now() };
-    const pairAlice = this.keyring.addFromUri(`${this.mnemonicGenerated}${this.derivePath}`, 
-      this.meta, this.keyringPairType)
-    this.keyringPairAddress = this.keyring.getPair(pairAlice.address).address;
-    this.keyringPairPubKey = u8aToHex(this.keyring.getPair(pairAlice.address).publicKey);
-    this.currentPair = this.keyring.getPair(pairAlice.address);
+    if(!this.deriveValidate(this.derivePath, this.pairType)) {
+      const pairAlice = this.keyring.addFromUri(`${this.mnemonicGenerated}${this.derivePath}`,
+        this.meta, this.pairType);
+      this.keyringPairAddress = this.keyring.getPair(pairAlice.address).address;
+      this.keyringPairPubKey = u8aToHex(this.keyring.getPair(pairAlice.address).publicKey);
+      this.currentPair = this.keyring.getPair(pairAlice.address);
+    }
   }
 
+  public deriveValidate(derivePath: string, pairType: string): string | null {
+    try {
+      const { path } = keyExtractPath(derivePath);
+
+      // we don't allow soft for ed25519
+      if (pairType === 'ed25519') {
+        const firstSoft = path.find(({ isSoft }): boolean => isSoft);
+
+        if (firstSoft) {
+          return 'Soft derivation paths are not allowed on ed25519';
+        }
+      }
+    } catch (error) {
+      return error.message;
+    }
+
+    return null;
+  }
   public saveKeystoreToJson(): void {
     this.mainGenerateFromMnemonic();
     this.keystoreJson = this.keyring.toJson(this.keyringPairAddress, this.passwordKeystore);
