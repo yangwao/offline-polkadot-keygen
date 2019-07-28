@@ -367,7 +367,6 @@ export default class Subkey extends Vue {
 
   public mnemonicGenerate(): void {
     this.mnemonicGenerated = mnemonicGenerate();
-    this.keyring = new Keyring();
   }
 
   public validateMnemonic(): void {
@@ -438,6 +437,7 @@ export default class Subkey extends Vue {
 
   public async mountWasmCrypto(): Promise<void> {
     await waitReady();
+    this.keyring = new Keyring();
     this.mnemonicGenerate();
     this.mainGenerateFromMnemonic();
   }
