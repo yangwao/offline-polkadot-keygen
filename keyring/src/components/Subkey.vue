@@ -221,12 +221,12 @@ import { waitReady } from '@polkadot/wasm-crypto';
 import { isHex, u8aToHex, hexToU8a, stringToU8a, u8aToString } from '@polkadot/util';
 import { keyExtractPath, mnemonicGenerate, mnemonicToSeed,
   mnemonicValidate, schnorrkelVerify } from '@polkadot/util-crypto';
-import SubkeyFileLoad from './SubkeyFileLoad.vue'
+import SubkeyFileLoad from './SubkeyFileLoad.vue';
 
 @Component({
   components: {
     field,
-    SubkeyFileLoad
+    SubkeyFileLoad,
   },
 })
 export default class Subkey extends Vue {
@@ -278,27 +278,6 @@ export default class Subkey extends Vue {
   public toSign = { data: '' as string, signature: '' as string };
   public accountToImport: any = '';
   public restoredPair: any = '';
-
-  public handleAccountChange(account) {
-    this.accountToImport = account
-  }
-
-  // put me into component
-  public onFileChange(e: any): void {
-      const files = e.target.files;
-      if (!files.length) {
-          return;
-        }
-      this.createInput(files[0]);
-  }
-
-  public createInput(file: any): void {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        this.accountToImport = reader.result;
-      };
-      reader.readAsText(file);
-  }
 
   // put me into component
   public setActiveTab(name: string): void {

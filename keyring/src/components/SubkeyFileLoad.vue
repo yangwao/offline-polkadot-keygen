@@ -14,11 +14,11 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop, Emit, PropSync } from "vue-property-decorator";
+import { Vue, Component, Prop, Emit, PropSync } from 'vue-property-decorator';
 
 @Component
 export default class SubkeyFileLoad extends Vue {
-  @PropSync('accountToImport') account!: any
+  @PropSync('accountToImport') private account!: any;
 
   public onFileChange(e: any): void {
     const files = e.target.files;
@@ -30,7 +30,7 @@ export default class SubkeyFileLoad extends Vue {
 
   private createInput(file: any): void {
     const reader = new FileReader();
-    reader.onload = e => {
+    reader.onload = () => {
       this.account = reader.result;
     };
     reader.readAsText(file);
