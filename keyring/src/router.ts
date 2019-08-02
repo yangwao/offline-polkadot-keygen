@@ -15,6 +15,11 @@ export default new Router({
       component: Layout,
     },
     {
+      path: '/balance',
+      name: 'balance',
+      component: Wallet,
+    },
+    {
       path: '/wallet',
       name: 'wallet',
       // route level code-splitting
