@@ -122,27 +122,7 @@
     <div v-show="displayActiveContent('load')">
       <div class="columns">
         <div class="column is-10 is-offset-1">
-          <div class="field">
-            <div class="file is-info has-name is-fullwidth is-right">
-              <label class="file-label">
-                <input class="file-input" 
-                  type="file" name="account"
-                  @change="onFileChange">
-                <span class="file-cta">
-                  <span class="file-icon">
-                    📂
-                    <!-- <i class="fas fa-upload"></i> -->
-                  </span>
-                  <span class="file-label">
-                     Choose Account
-                  </span>
-                </span>
-                <span class="file-name">
-                  {{accountToImport}}
-                </span>
-              </label>
-            </div>
-          </div>
+          <SubkeyFileLoad :accountToImport.sync="accountToImport" />
           <field 
             v-model="passwordKeystore"
             label="🔑 password"
@@ -155,7 +135,7 @@
       </div>
       <div class="columns">
         <div class="column is-10 is-offset-1">
-          <a @click="importAccountFromJson()"
+          <a @click="importAccountFromJson"
           class="button is-info">📂 Import Account</a>
         </div>
       </div>
@@ -241,10 +221,12 @@ import { waitReady } from '@polkadot/wasm-crypto';
 import { isHex, u8aToHex, hexToU8a, stringToU8a, u8aToString } from '@polkadot/util';
 import { keyExtractPath, mnemonicGenerate, mnemonicToSeed,
   mnemonicValidate, schnorrkelVerify } from '@polkadot/util-crypto';
+import SubkeyFileLoad from './SubkeyFileLoad.vue';
 
 @Component({
   components: {
     field,
+    SubkeyFileLoad,
   },
 })
 export default class Subkey extends Vue {
@@ -296,23 +278,6 @@ export default class Subkey extends Vue {
   public toSign = { data: '' as string, signature: '' as string };
   public accountToImport: any = '';
   public restoredPair: any = '';
-
-  // put me into component
-  public onFileChange(e: any): void {
-      const files = e.target.files;
-      if (!files.length) {
-          return;
-        }
-      this.createInput(files[0]);
-  }
-
-  public createInput(file: any): void {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        this.accountToImport = reader.result;
-      };
-      reader.readAsText(file);
-  }
 
   // put me into component
   public setActiveTab(name: string): void {
