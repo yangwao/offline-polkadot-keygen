@@ -40,12 +40,19 @@
       </div>
     </div>
 
-    <field 
-      v-model="passwordKeystore"
-      label="🔑 password"
-      classList="input is-info"
-      type="password"
-      placeholder="password" />
+    <form>
+      <field
+        classList="input is-hidden"
+        autocomplete="username"/>
+      <field 
+        v-model="passwordKeystore"
+        label="🔑 password"
+        classList="input is-info"
+        type="password"
+        placeholder="password"
+        autocomplete="current-password"
+         />
+    </form>
     <p v-show="passwordKeystore.length < 1" class="help is-danger">
       password is mandatory</p>
 
@@ -123,12 +130,18 @@
       <div class="columns">
         <div class="column is-10 is-offset-1">
           <SubkeyFileLoad :accountToImport.sync="accountToImport" />
-          <field 
-            v-model="passwordKeystore"
-            label="🔑 password"
-            classList="input"
-            type="password"
-            placeholder="password" />
+          <form>
+            <field
+              classList="input is-hidden"
+              autocomplete="username"/>
+            <field 
+              v-model="passwordKeystore"
+              label="🔑 password"
+              classList="input"
+              type="password"
+              placeholder="password"
+              autocomplete="current-password" />
+          </form>
           <p v-show="passwordKeystore.length < 1" class="help is-danger">
             password is mandatory</p>
         </div>

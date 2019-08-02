@@ -9,6 +9,7 @@
           :type="type"
           :placeholder="placeholder" 
           :value="value"
+          :autocomplete="autocomplete"
           :disabled="disabled">
       </div>
     </div>
@@ -26,6 +27,7 @@ export default class Field extends Vue {
   @Prop(String) public placeholder!: string;
   @Prop(String) public classList!: string;
   @Prop(Boolean) public disabled!: boolean;
+  @Prop(String) public autocomplete!: string;
 }
 
 </script>
