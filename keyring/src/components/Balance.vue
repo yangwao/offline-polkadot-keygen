@@ -49,8 +49,8 @@ export default class Balance extends Vue {
     {name: 'poc3-rpc.polkadot', value: 'wss://poc3-rpc.polkadot.io/'},
     {name: 'alex.unfrastructure', value: 'wss://alex.unfrastructure.io/public/ws'},
     {name: 'substrate-rpc.parity', value: 'wss://substrate-rpc.parity.io/'},
-    {name: 'localhost:9444', value: 'ws://127.0.0.1:9944'}
-  ]
+    {name: 'localhost:9444', value: 'ws://127.0.0.1:9944'},
+  ];
 
   public async main(): Promise<void> {
     const provider = new WsProvider('wss://poc3-rpc.polkadot.io/');
