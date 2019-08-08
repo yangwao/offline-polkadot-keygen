@@ -13,6 +13,20 @@
         Change: {{change}}
       </div>
     </div>
+    <div class="columns">
+      <div class="column">
+        <div class="control">
+          <select v-model="WsProvider" @change="window.location.reload()">
+            <option 
+              v-for="option in WsProviders"
+              v-bind:value="option.value"
+              v-bind:key="option.value">
+              {{ option.name }}
+            </option>
+          </select>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -30,12 +44,15 @@ export default class Balance extends Vue {
   public nodeVersion: any = '';
   public person: string = '5DFwZivYX7hEjBsVH7KGYZYCJMtb75t2aBoeJnzLSLZGPLFn';
   public api: any = '';
+  public WsProvider: string = '';
+  public WsProviders: object = [
+    {name: 'poc3-rpc.polkadot', value: 'wss://poc3-rpc.polkadot.io/'},
+    {name: 'alex.unfrastructure', value: 'wss://alex.unfrastructure.io/public/ws'},
+    {name: 'substrate-rpc.parity', value: 'wss://substrate-rpc.parity.io/'},
+    {name: 'localhost:9444', value: 'ws://127.0.0.1:9944'}
+  ]
 
   public async main(): Promise<void> {
-    // wss://poc3-rpc.polkadot.io/
-    // wss://alex.unfrastructure.io/public/ws
-    // wss://substrate-rpc.parity.io/
-    // ws://127.0.0.1:9944
     const provider = new WsProvider('wss://poc3-rpc.polkadot.io/');
 
     this.api = await ApiPromise.create(provider);
@@ -44,8 +61,6 @@ export default class Balance extends Vue {
       this.api.rpc.system.name(),
       this.api.rpc.system.version(),
     ]);
-
-    // console.log(`You are connected to chain ${chain} using ${nodeName} v${nodeVersion}`);
   }
 
   public async queryBalance(): Promise<void> {
@@ -53,7 +68,6 @@ export default class Balance extends Vue {
     this.api.query.balances.freeBalance(this.person, (current: any) => {
     // Calculate the delta
     this.change = current.sub(this.balance);
-
     // Only display positive value changes (Since we are pulling `previous` above already,
     // the initial balance change will also be zero)
     if (!this.change.isZero()) {
