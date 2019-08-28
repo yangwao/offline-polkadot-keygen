@@ -205,6 +205,8 @@
     
 
     <br>
+    <identicon />
+    <!-- :value="keyringPairAddress"/> -->
     <li>Public_Key {{keyringPairPubKey}}</li>
     <li>Address_SS58 {{keyringPairAddress}}</li>
     <br>
@@ -235,11 +237,16 @@ import { isHex, u8aToHex, hexToU8a, stringToU8a, u8aToString } from '@polkadot/u
 import { keyExtractPath, mnemonicGenerate, mnemonicToSeed,
   mnemonicValidate, schnorrkelVerify } from '@polkadot/util-crypto';
 import SubkeyFileLoad from './SubkeyFileLoad.vue';
+// tslint:disable
+import  Identicon from 'vue-identicon';
+
+console.log(Identicon, field)
 
 @Component({
   components: {
     field,
     SubkeyFileLoad,
+    identicon: Identicon,
   },
 })
 export default class Subkey extends Vue {
