@@ -202,9 +202,28 @@
         disabled/>
 
     </div>
-    
-
     <br>
+    <identicon
+      :size="128"
+      :theme="identiconPickedType"
+      :value='keyringPairAddress'
+    />
+    <br>
+    <div class="field">
+      <div class="control is-expanded">
+        <div class="select is-fullwidth">
+          <select v-model="identiconPickedType">
+            <option
+              v-for="option in identiconType"
+              v-bind:value="option.value"
+              v-bind:key="option.value"
+              :selected ="option.value == 'polkadot'">
+              {{ option.text }}
+            </option>
+          </select>
+        </div>
+      </div>
+    </div>
     <li>Public_Key {{keyringPairPubKey}}</li>
     <li>Address_SS58 {{keyringPairAddress}}</li>
     <br>
@@ -227,7 +246,6 @@
 <script lang="ts">
 import { Vue, Component } from 'vue-property-decorator';
 import field from '@/components/Field.vue';
-
 import Keyring from '@polkadot/keyring';
 import createPair from '@polkadot/keyring/pair';
 import { waitReady } from '@polkadot/wasm-crypto';
@@ -235,32 +253,22 @@ import { isHex, u8aToHex, hexToU8a, stringToU8a, u8aToString } from '@polkadot/u
 import { keyExtractPath, mnemonicGenerate, mnemonicToSeed,
   mnemonicValidate, schnorrkelVerify } from '@polkadot/util-crypto';
 import SubkeyFileLoad from './SubkeyFileLoad.vue';
+// @ts-ignore
+import Identicon from '@vue-polkadot/vue-identicon';
 
 @Component({
   components: {
+    identicon: Identicon,
     field,
     SubkeyFileLoad,
   },
 })
 export default class Subkey extends Vue {
   public tabs: object = [
-    {
-      name: 'create',
-      displayName: '✨Create',
-    },
-    {
-      name: 'load',
-      displayName: '📂Load',
-    },
-    {
-      name: 'sign',
-      displayName: '✍️Sign Data',
-    },
-    {
-      name: 'verify',
-      displayName: '🔏Verify Signature',
-    },
-  ];
+    { name: 'create', displayName: '✨Create' },
+    { name: 'load', displayName: '📂Load' },
+    { name: 'sign', displayName: '✍️Sign Data' },
+    { name: 'verify', displayName: '🔏Verify Signature' }];
   public showAdvancedOptions: boolean = false;
   public derivePath: string = '';
   public activeTabName: string = 'create';
@@ -284,6 +292,13 @@ export default class Subkey extends Vue {
   public keyringPairTypes: object = [
     {text: 'Edwards (ed25519)', value: 'ed25519'},
     {text: 'Schnorrkel (sr25519)', value: 'sr25519'}];
+  public identiconPickedType: string = 'polkadot';
+  public identiconType: object = [
+    {text: 'Beachball', value: 'beachball'},
+    {text: 'Empty', value: ''},
+    {text: 'Jdenticon', value: 'jdenticon'},
+    {text: 'Polkadot', value: 'polkadot'},
+    {text: 'Substrate', value: 'substrate'}];
   public isValidSignature: boolean = false;
   public signedData: string = '';
   public currentPair: any = '';
